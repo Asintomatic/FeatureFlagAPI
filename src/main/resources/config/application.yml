@@ -1,0 +1,9 @@
+jwt:
+  secret: MyVerySecretKey12345678901234567890
+  expirationMs: 86400000
+
+server.port: 8080
+spring.security.user.name: admin
+spring.security.user.password: admin.
+jwt.secret: BytesColab4P!
+jwt.expiration: 3600000
