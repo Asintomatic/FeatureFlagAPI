@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TokenInvalidoException.class)
-    public ResponseEntity<Object> handleTokenInvalido(TokenExpiradoException ex){
+    public ResponseEntity<Object> handleTokenInvalido(TokenInvalidoException ex){
         return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
     @ExceptionHandler(TokenMalFormadoException.class)
@@ -32,8 +33,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex){
-        Map<String, String> fields = ex.getBindingResult().getFieldErrors().stream()
-                .collect(Collectors.toMap(FieldError::getField, f -> f.getDefaultMessage(), (a, b)->a));
+        Map<String, String> fields = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(fe -> fields.putIfAbsent(fe.getField(), fe.getDefaultMessage()));
         Map<String, Object> body = base(HttpStatus.BAD_REQUEST, "Validation failed");
         body.put("validation", fields);
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
