@@ -1,6 +1,5 @@
 package com.bytescolab.featureflag.security.jwt;
 
-//import com.bytescolab.featureflag.service.user.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.bytescolab.featureflag.exception.TokenExpiradoException;
@@ -33,6 +32,12 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        final String uri = request.getRequestURI();
+        if (uri.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return; // ⬅ importante: solo una pasada
+        }
         //Se recoge el token de las cabeceras
         final String authHeader = request.getHeader("Authorization");
         log.info("Recogemos el token {}", authHeader );
@@ -71,18 +76,21 @@ public class JwtFilter extends OncePerRequestFilter {
                     log.error("Token no válido para usuario {}", username);
                 }
             }
-
+           // filterChain.doFilter(request, response);
         } catch (TokenExpiradoException e) {
             log.error("Token expirado: {}", e.getMessage());
-            throw new TokenExpiradoException("El token ha expirado");
+            //throw new TokenExpiradoException("El token ha expirado");
+            SecurityContextHolder.clearContext();
         } catch (TokenMalFormadoException e) {
             log.error("Token mal formado: {}", e.getMessage());
-            throw new TokenMalFormadoException("El token está mal formado");
+            //throw new TokenMalFormadoException("El token está mal formado");
+            SecurityContextHolder.clearContext();
         } catch (TokenInvalidoException e) {
             log.error("Error al validar el token JWT: {}", e.getMessage());
-            throw new TokenInvalidoException("El token no ha podido ser validado.");
+            SecurityContextHolder.clearContext();
+            //throw new TokenInvalidoException("El token no ha podido ser validado.");
         }
 
-        filterChain.doFilter(request, response);
+
     }
 }
