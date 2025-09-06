@@ -1,5 +1,6 @@
 package com.bytescolab.featureflag.controller;
 
+import com.bytescolab.featureflag.dto.auth.LoginDTO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +29,16 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterDTO dto) {
         // El controller NO sabe de JPA ni seguridad: delega en el servicio (DIP)
         return ResponseEntity.ok(auth.register(dto));
+    }
+
+    @PostMapping("/login")
+    @Operation(
+            summary = "Login",
+            description = "Valida credenciales y devuelve un JWT (Bearer) con la expiración y el rol"
+    )
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginDTO dto) {
+        // Delegamos en el servicio: él usa AuthenticationManager (BCrypt) y JwtUtils para emitir el token
+        return ResponseEntity.ok(auth.login(dto));
     }
     //Login
     //@PostMapping login ("/login")

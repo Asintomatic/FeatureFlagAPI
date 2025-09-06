@@ -1,6 +1,8 @@
 package com.bytescolab.featureflag.security.jwt;
 
-import com.bytescolab.featureflag.service.user.UserDetailsService;
+//import com.bytescolab.featureflag.service.user.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 import com.bytescolab.featureflag.exception.TokenExpiradoException;
 import com.bytescolab.featureflag.exception.TokenInvalidoException;
 import com.bytescolab.featureflag.exception.TokenMalFormadoException;
