@@ -28,3 +28,23 @@ springdoc:
 #spring.security.user.password: admin.
 #jwt.secret: BytesColab4P!
 #jwt.expiration: 3600000
+
+
+# Logging
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.bytescolab.featureflag: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+  file:
+    name: logs/featureflag.log
+
+  logback:
+    rollingpolicy:
+      max-history: 7
+      max-file-size: 10MB
+      total-size-cap: 100MB
