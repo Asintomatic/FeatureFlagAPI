@@ -1,16 +1,16 @@
 package com.bytescolab.featureflag.dto.feature;
 
-import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class FeatureDTO {
+@AllArgsConstructor
+public class FeatureDetailDTO {
 
     private UUID id;
 
@@ -20,4 +20,5 @@ public class FeatureDTO {
 
     private boolean enabled;
 
+    private List<String> configs;
 }
