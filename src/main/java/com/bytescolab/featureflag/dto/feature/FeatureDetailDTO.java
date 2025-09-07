@@ -18,7 +18,7 @@ public class FeatureDetailDTO {
 
     private String description;
 
-    private boolean enabled;
+    private Boolean enabled;
 
     private List<String> configs;
 }
