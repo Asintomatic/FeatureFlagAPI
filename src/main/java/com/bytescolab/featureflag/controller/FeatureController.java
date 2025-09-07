@@ -58,4 +58,12 @@ public class FeatureController {
         return ResponseEntity.ok("Feature desactivada correctamente.");
     }
 
+    @GetMapping("/check")
+    @Operation(summary = "Comprobar una feature", description = "Comprobar si una feature está activa o no")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<Boolean> isFeatureActived(@RequestParam UUID featureId, @RequestParam String clientId, @RequestParam String env) {
+        boolean isEnabled = featureService.isFeatureActived(featureId, clientId, env);
+        return ResponseEntity.ok(isEnabled);
+    }
+
 }

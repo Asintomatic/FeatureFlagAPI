@@ -7,6 +7,8 @@ import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import com.bytescolab.featureflag.repository.FeatureConfigRepository;
 import com.bytescolab.featureflag.repository.FeatureRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
+@Slf4j
 @Service
 public class FeatureServiceImpl implements  FeatureService {
 
@@ -90,4 +93,33 @@ public class FeatureServiceImpl implements  FeatureService {
         assignment.setEnabled(false);
         featureConfigRepository.save(assignment);
     }
+
+    @Override
+    public boolean isFeatureActived(UUID featureId, String clientId, String environment) {
+
+        log.info("Buscando feature con ID: {}", featureId);
+        Optional<Feature> featureOpt = featureRepository.findById(featureId);
+
+        if (featureOpt.isEmpty()) {
+            log.warn("Feature con ID {} no encontrada", featureId);
+            return false;
+        }
+
+        Feature feature = featureOpt.get();
+
+        Optional<FeatureConfig> configByClient = featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, environment, clientId);
+        log.info("Configuración por cliente: {}", configByClient);
+
+        if (configByClient.isPresent()) {
+            return configByClient.get().isEnabled();
+        }
+
+        Optional<FeatureConfig> configByEnv = featureConfigRepository.findByFeatureIdAndEnvironmentAndClientIdIsNull(feature.getId(), environment);
+        log.info("Configuración por entorno: {}", configByEnv);
+
+        return configByEnv.map(FeatureConfig::isEnabled).orElseGet(feature::isEnabledByDefault);
+
+
+    }
+
 }

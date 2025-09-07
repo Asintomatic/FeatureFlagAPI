@@ -11,15 +11,10 @@ import java.util.UUID;
 @Repository
 public interface FeatureConfigRepository extends JpaRepository <FeatureConfig, UUID> {
 
-    Optional<FeatureConfig> findByFeatureAndEnvironmentAndClientId(
-            Feature feature,
-            String environment,
-            String clientId
-    );
+    Optional<FeatureConfig> findByFeatureAndEnvironmentAndClientId(Feature feature, String environment, String clientId);
 
-    boolean existsByFeatureAndEnvironmentAndClientId(
-            Feature feature,
-            String environment,
-            String clientId
-    );
+    boolean existsByFeatureAndEnvironmentAndClientId(Feature feature, String environment, String clientId);
+
+    Optional<FeatureConfig> findByFeatureIdAndEnvironmentAndClientIdIsNull(UUID featureId, String env);
+
 }

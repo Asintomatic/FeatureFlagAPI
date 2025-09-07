@@ -14,6 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@ToString(exclude = "feature")
 public class FeatureConfig {
 
     @Id
@@ -32,5 +33,9 @@ public class FeatureConfig {
 
     @Column(nullable = false)
     private Boolean enabled = false;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 
 }

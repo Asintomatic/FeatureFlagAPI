@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Table(name = "features")
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "configs")
 public class Feature {
 
     @Id
@@ -27,5 +29,9 @@ public class Feature {
 
     @OneToMany(mappedBy = "feature", cascade = CascadeType.ALL)
     private List<FeatureConfig> configs;
+
+    public boolean isEnabledByDefault() {
+        return enabledByDefault;
+    }
 
 }
