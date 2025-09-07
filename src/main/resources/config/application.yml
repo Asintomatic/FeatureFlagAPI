@@ -1,24 +1,30 @@
-jwt:
-  secret: MyVerySecretKey12345678901234567890
-  expirationMs: 86400000
-
-server.port: 8080
-#spring.security.user.name: admin
-#spring.security.user.password: admin.
-#jwt.secret: BytesColab4P!
-#jwt.expiration: 3600000
-
 spring:
+  application:
+    name: "featureflag"
+
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5433/featureflag
-    username: postgres
-    password: P05t6r3SQL_1994
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
+
+server:
+  port: 8080
+
+jwt:
+  secret: MyVerySecretKey12345678901234567890
+  expirationMs: 86400000
 
 # Swagger
 springdoc:
   api-docs:
     enabled: true
+
+  #spring.security.user.name: admin
+#spring.security.user.password: admin.
+#jwt.secret: BytesColab4P!
+#jwt.expiration: 3600000

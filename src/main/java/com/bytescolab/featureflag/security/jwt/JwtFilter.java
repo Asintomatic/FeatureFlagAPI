@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
         final String uri = request.getRequestURI();
         if (uri.startsWith("/api/auth/")) {
             filterChain.doFilter(request, response);
-            return; // ⬅ importante: solo una pasada
+            return;
         }
         //Se recoge el token de las cabeceras
         final String authHeader = request.getHeader("Authorization");
@@ -76,21 +76,21 @@ public class JwtFilter extends OncePerRequestFilter {
                     log.error("Token no válido para usuario {}", username);
                 }
             }
-           // filterChain.doFilter(request, response);
+
         } catch (TokenExpiradoException e) {
             log.error("Token expirado: {}", e.getMessage());
-            //throw new TokenExpiradoException("El token ha expirado");
             SecurityContextHolder.clearContext();
+            throw new TokenExpiradoException("El token ha expirado");
         } catch (TokenMalFormadoException e) {
             log.error("Token mal formado: {}", e.getMessage());
-            //throw new TokenMalFormadoException("El token está mal formado");
             SecurityContextHolder.clearContext();
+            throw new TokenMalFormadoException("El token está mal formado");
         } catch (TokenInvalidoException e) {
             log.error("Error al validar el token JWT: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            //throw new TokenInvalidoException("El token no ha podido ser validado.");
+            throw new TokenInvalidoException("El token no ha podido ser validado.");
         }
 
-
+        filterChain.doFilter(request, response);
     }
 }

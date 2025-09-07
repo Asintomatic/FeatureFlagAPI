@@ -8,8 +8,8 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
-@Entity                     // ← esta clase es una tabla
-@Table(name = "users")      // ← nombre explícito
+@Entity
+@Table(name = "users")
 @Getter
 @Setter
 @Data

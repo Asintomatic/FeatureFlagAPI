@@ -18,38 +18,34 @@ import org.springframework.security.authentication.AuthenticationManager;
 import com.bytescolab.featureflag.security.jwt.JwtUtils;
 
 @Service
-@RequiredArgsConstructor // inyecta repositorio y encoder por constructor
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository users;
-    private final PasswordEncoder encoder; // BCrypt (lo definimos en SecurityConfig)
-    // 👇 NUEVO (lo usa login() para validar credenciales con Spring Security)
+    private final PasswordEncoder encoder;
+
     private final AuthenticationManager authenticationManager;
 
-    // 👇 NUEVO (lo usa login() para emitir el JWT)
     private final JwtUtils jwtUtils;
 
     @Override
     @Transactional
     public AuthResponseDTO register(RegisterDTO dto) {
-        // 1) Regla: username único
+
         if (users.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
 
-        // 2) Nunca se debe guardar password en claro → usa el hash
         String hash = encoder.encode(dto.getPassword());
 
-        // 3) Construimos la entidad con rol por defecto USER (evita escaladas)
         User u = User.builder()
                 .username(dto.getUsername())
                 .password(hash)
                 .role(Role.USER)
                 .build();
 
-        // 4) Guardamos y devolvemos DTO de salida sin campos sensibles
         User saved = users.save(u);
-        // Construye un UserDetails para emitir el token; puedes reusar tu CustomUserDetails
+
         UserDetails details = new CustomUserDetails(saved);
 
         String token = jwtUtils.generateToken(details);
@@ -58,8 +54,8 @@ public class AuthServiceImpl implements AuthService {
                 .id(saved.getId())
                 .username(saved.getUsername())
                 .role(saved.getRole().name())
-                .accessToken(token)        // <- ya no es null
-                .expiresAt(expMillis)      // <- ya no es 0
+                .accessToken(token)
+                .expiresAt(expMillis)
                 .tokenType("Bearer")
                 .build();
     }
