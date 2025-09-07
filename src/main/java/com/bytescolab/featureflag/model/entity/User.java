@@ -1,30 +1,35 @@
 package com.bytescolab.featureflag.model.entity;
 
 import com.bytescolab.featureflag.model.enums.Role;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@Entity
-@Table(name = "users")
+import jakarta.persistence.*;
+
+import lombok.*;
+
+@Entity                     // ← esta clase es una tabla
+@Table(name = "users")      // ← nombre explícito
+@Getter
+@Setter
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @Column(name = "id", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
 }
