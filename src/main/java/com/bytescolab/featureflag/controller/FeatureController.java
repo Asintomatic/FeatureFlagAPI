@@ -44,7 +44,7 @@ public class FeatureController {
 
     @PostMapping("/{id}/enable")
     @Operation(summary = "Activar feature", description = "Se activa una feature por su ID")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> enableFeature(@PathVariable UUID id, @RequestBody FeatureEnableDTO req) {
         featureService.enableFeatureForClientOrEnv(id, req.getEnvironment(), req.getClientId());
         return ResponseEntity.ok("Feature activada correctamente.");
@@ -52,7 +52,7 @@ public class FeatureController {
 
     @PostMapping("/{id}/disable")
     @Operation(summary = "Desactivar una feature", description = "Se desactiva una feature por su ID")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> disableFeature(@PathVariable UUID id, @RequestBody FeatureEnableDTO req) {
         featureService.disableFeatureForClientOrEnv(id, req.getEnvironment(), req.getClientId());
         return ResponseEntity.ok("Feature desactivada correctamente.");

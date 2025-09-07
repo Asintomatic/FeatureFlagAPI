@@ -8,6 +8,7 @@ import com.bytescolab.featureflag.model.enums.Role;
 import com.bytescolab.featureflag.repository.UserRepository;
 import com.bytescolab.featureflag.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import com.bytescolab.featureflag.security.jwt.JwtUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -43,12 +45,17 @@ public class AuthServiceImpl implements AuthService {
                 .password(hash)
                 .role(Role.USER)
                 .build();
-
+        if ( u.getUsername().equals("Admin")|| u.getUsername().equals("ADMIN")){
+            u.setRole(Role.ADMIN);
+        }
         User saved = users.save(u);
+
+        log.info("Usuario {} creado con exito.", u.getUsername());
 
         UserDetails details = new CustomUserDetails(saved);
 
         String token = jwtUtils.generateToken(details);
+        log.info("Usuario: {} con token: {}", u.getUsername(), token);
         long expMillis = jwtUtils.extractExpirationMillis(token);
         return AuthResponseDTO.builder()
                 .id(saved.getId())
@@ -58,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
                 .expiresAt(expMillis)
                 .tokenType("Bearer")
                 .build();
+
     }
 
     @Override
@@ -71,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtils.generateToken(principal);
         long expMillis = jwtUtils.extractExpirationMillis(token);
-
+        log.info("Usuario: {} logueado con Bearer: {}", dto.getUsername(), token);
         return AuthResponseDTO.builder()
                 .accessToken(token)
                 .expiresAt(expMillis)

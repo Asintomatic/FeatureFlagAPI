@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Auth", description = "Authentication endpoints")
-@RequiredArgsConstructor // ← Lombok genera constructor para el 'final' de abajo
+@RequiredArgsConstructor
 public class AuthController {
 
     // ⚠️ Importante: 'final' + @RequiredArgsConstructor evita el error “Field 'auth' might not have been initialized”
@@ -40,12 +40,5 @@ public class AuthController {
         // Delegamos en el servicio: él usa AuthenticationManager (BCrypt) y JwtUtils para emitir el token
         return ResponseEntity.ok(auth.login(dto));
     }
-    //Login
-    //@PostMapping login ("/login")
-    //FIN Login
-
-    //Registro de usuario
-    //@PostMapping register ("/register")
-    //FIN Registro de usuario
 
 }
