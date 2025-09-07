@@ -1,5 +1,8 @@
 package com.bytescolab.featureflag.security.jwt;
 
+import com.bytescolab.featureflag.exception.TokenExpiradoException;
+import com.bytescolab.featureflag.exception.TokenInvalidoException;
+import com.bytescolab.featureflag.exception.TokenMalFormadoException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -8,6 +11,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
@@ -31,12 +35,20 @@ public class JwtUtils {
     }
 
     public String extractUsername(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (ExpiredJwtException e) {
+            throw new TokenExpiradoException("El token ha expirado");
+        } catch (MalformedJwtException | UnsupportedJwtException e) {
+            throw new TokenMalFormadoException("Token mal formado");
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new TokenInvalidoException("Token inválido");
+        }
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -54,8 +66,28 @@ public class JwtUtils {
         return expiration.before(new Date());
     }
 
-    private SecretKey getSigningKey(){
-        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+    private SecretKey getSigningKey() {
+//        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+//        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+
+    }
+
+    public long extractExpirationMillis(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration()
+                    .getTime();
+        } catch (ExpiredJwtException e) {
+            throw new TokenExpiradoException("El token ha expirado");
+        } catch (MalformedJwtException | UnsupportedJwtException e) {
+            throw new TokenMalFormadoException("Token mal formado");
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new TokenInvalidoException("Token inválido");
+        }
     }
 }
