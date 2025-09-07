@@ -1,6 +1,5 @@
 package com.bytescolab.featureflag.dto.feature;
 
-import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +17,6 @@ public class FeatureDTO {
 
     private String description;
 
-    private boolean enabled;
+    private Boolean enabled;
 
 }
