@@ -62,36 +62,39 @@ public class FeatureServiceImpl implements  FeatureService {
     }
 
     @Override
-    public void enableFeatureForClientOrEnv(UUID featureId, String environment, String cliendId) {
-        Feature feature = featureRepository.findById((featureId)).orElseThrow(() -> new RuntimeException("Feature no encontrada"));
-
-        if(featureConfigRepository.existsByFeatureAndEnvironmentAndClientId(feature, environment, cliendId)) {
-            FeatureConfig config = featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, environment, cliendId).get();;
-            config.setEnabled(true);
-            featureConfigRepository.save(config);
-
-        }else {
-            FeatureConfig newConfig = FeatureConfig.builder()
-                    .feature(feature)
-                    .environment(environment)
-                    .clientId(cliendId)
-                    .enabled(true)
-                    .build();
-            featureConfigRepository.save(newConfig);
-        }
-    }
-
-    @Override
-    public void  disableFeatureForClientOrEnv(UUID featureId, String environment, String cliendId) {
+    public String enableFeatureForClientOrEnv(UUID featureId, String environment, String clientId) {
         Feature feature = featureRepository.findById(featureId)
                 .orElseThrow(() -> new RuntimeException("Feature no encontrada"));
 
         FeatureConfig assignment = featureConfigRepository
-                .findByFeatureAndEnvironmentAndClientId(feature, environment, cliendId)
+                .findByFeatureAndEnvironmentAndClientId(feature, environment, clientId)
                 .orElseThrow(() -> new RuntimeException("No existe asignación para deshabilitar"));
 
         assignment.setEnabled(false);
         featureConfigRepository.save(assignment);
+
+        String msg = String.format("Feature '{}' desactivada correctamente para clientId={} y env={}",
+                feature.getName(), clientId, environment);
+        log.info(msg);
+        return msg;
+    }
+
+    @Override
+    public String disableFeatureForClientOrEnv(UUID featureId, String environment, String clientId) {
+        Feature feature = featureRepository.findById(featureId)
+                .orElseThrow(() -> new RuntimeException("Feature no encontrada"));
+
+        FeatureConfig assignment = featureConfigRepository
+                .findByFeatureAndEnvironmentAndClientId(feature, environment, clientId)
+                .orElseThrow(() -> new RuntimeException("No existe asignación para deshabilitar"));
+
+        assignment.setEnabled(false);
+        featureConfigRepository.save(assignment);
+
+        String msg = String.format("Feature '{}' desactivada correctamente para clientId={} y env={}",
+                feature.getName(), clientId, environment);
+        log.info(msg);
+        return msg;
     }
 
     @Override

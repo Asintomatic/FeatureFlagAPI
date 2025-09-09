@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +17,17 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired UserService userService;
+    private final UserService userService;
+
+    public UserController (UserService userService){
+        this.userService= userService;
+    }
 
     @PutMapping("/{userId}/role")
     @Operation(summary = "Cambio rol", description = "Endpoint para el cambio de rol de un usuario")
     @PreAuthorize("hasRole('ADMIN')")
-    public void updateUserRole (@PathVariable UUID userId, @RequestBody @Valid UpdateUserRoleDTO request){
-    userService.updateUserRole(userId, request.getRole());
+    public ResponseEntity<?> updateUserRole (@PathVariable UUID userId, @RequestBody @Valid UpdateUserRoleDTO request){
+    return ResponseEntity.ok(userService.updateUserRole(userId, request.getRole()));
     }
 
 }

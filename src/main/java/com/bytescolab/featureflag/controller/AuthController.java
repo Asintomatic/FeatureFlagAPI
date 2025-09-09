@@ -32,10 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(
-            summary = "Login",
-            description = "Valida credenciales y devuelve un JWT (Bearer) con la expiración y el rol"
-    )
+    @Operation(summary = "Login",description = "Valida credenciales y devuelve un JWT (Bearer) con la expiración y el rol")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginDTO dto) {
         // Delegamos en el servicio: él usa AuthenticationManager (BCrypt) y JwtUtils para emitir el token
         return ResponseEntity.ok(auth.login(dto));

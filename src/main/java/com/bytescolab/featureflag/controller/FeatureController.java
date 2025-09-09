@@ -18,19 +18,20 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/feature")
 @Tag(name = "Feature", description = "Feature endpoints")
-@RequiredArgsConstructor
 public class FeatureController {
 
-    @Autowired
-    private FeatureService featureService;
+    private final FeatureService featureService;
+
+    public FeatureController (FeatureService featureService){
+        this.featureService= featureService;
+    }
 
     //Listar todas las features
     @GetMapping
     @Operation(summary = "Listar todas las features", description = "Lista todas las features de todos los clientes y entornos")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<FeatureDTO>> getAllFeatures(){
-        List<FeatureDTO> features = featureService.getAllFeatures();
-        return ResponseEntity.ok(features);
+        return ResponseEntity.ok(featureService.getAllFeatures());
     }
 
     //Listar feature por id
@@ -38,32 +39,28 @@ public class FeatureController {
     @Operation(summary = "Listar una feature", description = "Lista una feature definida por su ID")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<FeatureDetailDTO> getFeatureById(@PathVariable UUID id){
-        FeatureDetailDTO feature = featureService.getFeatureById(id);
-        return ResponseEntity.ok(feature);
+        return ResponseEntity.ok(featureService.getFeatureById(id));
     }
 
     @PostMapping("/{id}/enable")
     @Operation(summary = "Activar feature", description = "Se activa una feature por su ID")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> enableFeature(@PathVariable UUID id, @RequestBody FeatureEnableDTO req) {
-        featureService.enableFeatureForClientOrEnv(id, req.getEnvironment(), req.getClientId());
-        return ResponseEntity.ok("Feature activada correctamente.");
+    public ResponseEntity<String> enableFeature(@PathVariable UUID id, @RequestBody FeatureEnableDTO req) {
+        return ResponseEntity.ok(featureService.enableFeatureForClientOrEnv(id, req.getEnvironment(), req.getClientId()));
     }
 
     @PostMapping("/{id}/disable")
     @Operation(summary = "Desactivar una feature", description = "Se desactiva una feature por su ID")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> disableFeature(@PathVariable UUID id, @RequestBody FeatureEnableDTO req) {
-        featureService.disableFeatureForClientOrEnv(id, req.getEnvironment(), req.getClientId());
-        return ResponseEntity.ok("Feature desactivada correctamente.");
+    public ResponseEntity<String> disableFeature(@PathVariable UUID id, @RequestBody FeatureEnableDTO req) {
+        return ResponseEntity.ok(featureService.disableFeatureForClientOrEnv(id, req.getEnvironment(), req.getClientId()));
     }
 
     @GetMapping("/check")
     @Operation(summary = "Comprobar una feature", description = "Comprobar si una feature está activa o no")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<Boolean> isFeatureActived(@RequestParam UUID featureId, @RequestParam String clientId, @RequestParam String env) {
-        boolean isEnabled = featureService.isFeatureActived(featureId, clientId, env);
-        return ResponseEntity.ok(isEnabled);
+        return ResponseEntity.ok(featureService.isFeatureActived(featureId, clientId, env));
     }
 
 }

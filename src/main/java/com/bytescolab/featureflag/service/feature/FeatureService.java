@@ -15,9 +15,9 @@ public interface FeatureService {
 
     FeatureDetailDTO getFeatureById(UUID id);
 
-    void enableFeatureForClientOrEnv(UUID featureId, String clientId, String environment);
+    String enableFeatureForClientOrEnv(UUID featureId, String clientId, String environment);
 
-    void disableFeatureForClientOrEnv(UUID featureId, String clientId, String environment);
+    String disableFeatureForClientOrEnv(UUID featureId, String clientId, String environment);
 
     boolean isFeatureActived(UUID featureId, String clientId, String environment);
 

@@ -25,10 +25,10 @@ public class FeatureConfig {
     @JoinColumn(name = "feature_id", nullable = false)
     private Feature feature;
 
-    @Column(name = "environment")
+    @Column(name = "environment", nullable = false)
     private String environment;
 
-    @Column(name = "client_id")
+    @Column(name = "client_id", nullable = false)
     private String clientId;
 
     @Column(nullable = false)
