@@ -28,8 +28,8 @@ public class UserService {
         user.setRole(newRole);
         userRepository.save(user);
 
-        String msg = String.format("Usuario {} actualizado correctamente con rol: {}", user.getUsername(), newRole.name());
-        log.info(msg);
+        String msg = String.format("Usuario %s actualizado correctamente con rol: %s", user.getUsername(), newRole.name());
+        log.info("Usuario {} actualizado correctamente con rol: {}", user.getUsername(), newRole.name());
         return msg;
     }
 }

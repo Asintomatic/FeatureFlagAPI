@@ -26,12 +26,6 @@ springdoc:
   api-docs:
     enabled: true
 
-  #spring.security.user.name: admin
-#spring.security.user.password: admin.
-#jwt.secret: BytesColab4P!
-#jwt.expiration: 3600000
-
-
 # Logging
 logging:
   level:

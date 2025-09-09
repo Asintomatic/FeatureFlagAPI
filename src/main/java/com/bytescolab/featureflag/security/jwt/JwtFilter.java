@@ -54,7 +54,6 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             String username = jwtUtils.extractUsername(jwt);
 
-            //Comprobamos que el username está dentro del token, si no está autenticado
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 //recogemos el usuario de bbdd
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);

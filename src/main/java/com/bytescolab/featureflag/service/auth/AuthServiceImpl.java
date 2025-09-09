@@ -52,18 +52,11 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Usuario {} creado con exito.", u.getUsername());
 
-        UserDetails details = new CustomUserDetails(saved);
 
-        String token = jwtUtils.generateToken(details);
-        log.info("Usuario: {} con token: {}", u.getUsername(), token);
-        long expMillis = jwtUtils.extractExpirationMillis(token);
         return AuthResponseDTO.builder()
                 .id(saved.getId())
                 .username(saved.getUsername())
                 .role(saved.getRole().name())
-                .accessToken(token)
-                .expiresAt(expMillis)
-                .tokenType("Bearer")
                 .build();
 
     }

@@ -5,7 +5,6 @@ import com.bytescolab.featureflag.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,7 @@ public class UserController {
     @PutMapping("/{userId}/role")
     @Operation(summary = "Cambio rol", description = "Endpoint para el cambio de rol de un usuario")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateUserRole (@PathVariable UUID userId, @RequestBody @Valid UpdateUserRoleDTO request){
+    public ResponseEntity<String> updateUserRole (@PathVariable UUID userId, @RequestBody @Valid UpdateUserRoleDTO request){
     return ResponseEntity.ok(userService.updateUserRole(userId, request.getRole()));
     }
 

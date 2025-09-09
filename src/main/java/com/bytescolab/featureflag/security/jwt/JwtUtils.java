@@ -3,16 +3,14 @@ package com.bytescolab.featureflag.security.jwt;
 import com.bytescolab.featureflag.exception.TokenExpiradoException;
 import com.bytescolab.featureflag.exception.TokenInvalidoException;
 import com.bytescolab.featureflag.exception.TokenMalFormadoException;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 
 @Component
@@ -27,7 +25,7 @@ public class JwtUtils {
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .claim("roles", userDetails.getAuthorities()) // 👈 metemos los roles
+                .claim("roles", userDetails.getAuthorities())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -67,8 +65,6 @@ public class JwtUtils {
     }
 
     private SecretKey getSigningKey() {
-//        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
-//        return Keys.hmacShaKeyFor(keyBytes);
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
     }

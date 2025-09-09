@@ -3,7 +3,11 @@ package com.bytescolab.featureflag.dto.auth;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LoginDTO {
     @NotBlank(message = "username is required")
     private String username;

@@ -6,8 +6,6 @@ import com.bytescolab.featureflag.dto.feature.FeatureEnableDTO;
 import com.bytescolab.featureflag.service.feature.FeatureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,6 @@ public class FeatureController {
         this.featureService= featureService;
     }
 
-    //Listar todas las features
     @GetMapping
     @Operation(summary = "Listar todas las features", description = "Lista todas las features de todos los clientes y entornos")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -34,7 +31,6 @@ public class FeatureController {
         return ResponseEntity.ok(featureService.getAllFeatures());
     }
 
-    //Listar feature por id
     @GetMapping("/{id}")
     @Operation(summary = "Listar una feature", description = "Lista una feature definida por su ID")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -53,7 +49,7 @@ public class FeatureController {
     @Operation(summary = "Desactivar una feature", description = "Se desactiva una feature por su ID")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<String> disableFeature(@PathVariable UUID id, @RequestBody FeatureEnableDTO req) {
-        return ResponseEntity.ok(featureService.disableFeatureForClientOrEnv(id, req.getEnvironment(), req.getClientId()));
+        return ResponseEntity.ok(featureService.disableFeatureForClientOrEnv(id, req.getClientId(), req.getEnvironment() ));
     }
 
     @GetMapping("/check")

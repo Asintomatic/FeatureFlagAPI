@@ -2,8 +2,6 @@ package com.bytescolab.featureflag.service.feature;
 
 import com.bytescolab.featureflag.dto.feature.FeatureDTO;
 import com.bytescolab.featureflag.dto.feature.FeatureDetailDTO;
-import com.bytescolab.featureflag.dto.feature.FeatureEnableDTO;
-import com.bytescolab.featureflag.model.entity.Feature;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

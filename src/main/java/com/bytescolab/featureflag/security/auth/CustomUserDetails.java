@@ -7,12 +7,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1905122041950251207L;
 
     private User user;
 

@@ -1,19 +1,27 @@
 package com.bytescolab.featureflag.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import lombok.*;
 
-// Lombok genera getters/setters/constructores (menos código)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RegisterDTO {
-    // Validamos entrada desde el propio contrato (Bean Validation)
-    @NotBlank(message = "username is required")
+
+    @NotBlank(message = "Nombre de usuario es necesario")
     @Size(min = 3, max = 30, message = "username must be 3-50 chars")
     private String username;
 
-    @NotBlank(message = "password is required")
-    @Size(min = 6, message = "password must be at least 8 chars") // nunca aceptes contraseñas triviales
+    @NotBlank(message = " Contraseña es necesaria")
+    @Size(min = 6, max = 16, message = "La contraseña tiene que tener entre 6 y 16 carácteres.")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*#?&\\-_.])[A-Za-z\\d@$!%*#?&\\-_.]{8,}$",
+            message = "La contraseña debe contener una mayúscula, una minúscula, un numero y un carácter especial."
+    )
     private String password;
 }

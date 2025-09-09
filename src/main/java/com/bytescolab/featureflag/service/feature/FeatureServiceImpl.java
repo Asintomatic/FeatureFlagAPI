@@ -40,7 +40,7 @@ public class FeatureServiceImpl implements  FeatureService {
                         feature.getName(),
                         feature.getDescription(),
                         feature.getEnabledByDefault()))
-                .collect(toList());
+                .toList();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class FeatureServiceImpl implements  FeatureService {
         List<String> configNames = feature.getConfigs()
                 .stream()
                 .map(config -> config.getEnvironment() + ": " + config.getEnabled())
-                .collect(Collectors.toList());
+                .toList();
 
         return new FeatureDetailDTO(
                 feature.getId(),
@@ -73,27 +73,30 @@ public class FeatureServiceImpl implements  FeatureService {
         assignment.setEnabled(false);
         featureConfigRepository.save(assignment);
 
-        String msg = String.format("Feature '{}' desactivada correctamente para clientId={} y env={}",
+        String msg = String.format("Feature '%s' activada correctamente para clientId=%s y env=%s",
                 feature.getName(), clientId, environment);
-        log.info(msg);
+        log.info("Feature '{}' activada correctamente para clientId={} y env={}",
+                feature.getName(), clientId, environment);
         return msg;
     }
 
     @Override
-    public String disableFeatureForClientOrEnv(UUID featureId, String environment, String clientId) {
+    public String disableFeatureForClientOrEnv(UUID featureId, String clientId, String environment) {
         Feature feature = featureRepository.findById(featureId)
                 .orElseThrow(() -> new RuntimeException("Feature no encontrada"));
 
         FeatureConfig assignment = featureConfigRepository
-                .findByFeatureAndEnvironmentAndClientId(feature, environment, clientId)
+                .findByFeatureAndEnvironmentAndClientId(feature, clientId, environment)
                 .orElseThrow(() -> new RuntimeException("No existe asignación para deshabilitar"));
 
         assignment.setEnabled(false);
         featureConfigRepository.save(assignment);
 
-        String msg = String.format("Feature '{}' desactivada correctamente para clientId={} y env={}",
+        String msg = String.format("Feature '%s' desactivada correctamente para clientId=%s y env=%s",
                 feature.getName(), clientId, environment);
-        log.info(msg);
+        log.info("Feature '{}' desactivada correctamente para clientId={} y env={}",
+                feature.getName(), clientId, environment);
+
         return msg;
     }
 

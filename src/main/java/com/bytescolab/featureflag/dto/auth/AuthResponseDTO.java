@@ -4,8 +4,10 @@ import lombok.*;
 
 import java.util.UUID;
 
-// Respuesta "segura": no devolvemos password
-@Getter @Setter @AllArgsConstructor @Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class AuthResponseDTO {
     private String accessToken;
     private long expiresAt;

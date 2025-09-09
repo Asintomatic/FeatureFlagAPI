@@ -2,6 +2,8 @@ package com.bytescolab.featureflag.model.entity;
 
 import com.bytescolab.featureflag.model.enums.Role;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -16,7 +18,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 2405172041950251807L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
