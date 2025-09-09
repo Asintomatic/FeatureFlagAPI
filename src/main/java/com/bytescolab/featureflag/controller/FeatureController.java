@@ -6,6 +6,7 @@ import com.bytescolab.featureflag.dto.feature.FeatureEnableDTO;
 import com.bytescolab.featureflag.service.feature.FeatureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/feature")
+@RequestMapping("/api/features")
 @Tag(name = "Feature", description = "Feature endpoints")
 public class FeatureController {
 
@@ -22,6 +23,13 @@ public class FeatureController {
 
     public FeatureController (FeatureService featureService){
         this.featureService= featureService;
+    }
+
+    @PostMapping
+    @Operation(summary = "Crear nueva feature", description = "Crea una nueva Feature con su respectiva información de FeatureConfig")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<FeatureDetailDTO> createFeature(@Valid @RequestBody FeatureDetailDTO featureDetailDTO) {
+        return ResponseEntity.ok(featureService.createFeature(featureDetailDTO));
     }
 
     @GetMapping

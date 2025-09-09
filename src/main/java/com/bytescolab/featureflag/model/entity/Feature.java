@@ -2,6 +2,7 @@ package com.bytescolab.featureflag.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Table(name = "features")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @ToString(exclude = "configs")
 public class Feature {
 
@@ -21,8 +23,10 @@ public class Feature {
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
+    @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(nullable = false)
     private String description;
 
     private Boolean enabledByDefault;

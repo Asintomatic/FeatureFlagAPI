@@ -1,22 +1,20 @@
 package com.bytescolab.featureflag.service.feature;
 
+import com.bytescolab.featureflag.dto.feature.FeatureConfigDTO;
 import com.bytescolab.featureflag.dto.feature.FeatureDTO;
 import com.bytescolab.featureflag.dto.feature.FeatureDetailDTO;
-import com.bytescolab.featureflag.dto.feature.FeatureEnableDTO;
 import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import com.bytescolab.featureflag.repository.FeatureConfigRepository;
 import com.bytescolab.featureflag.repository.FeatureRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
@@ -29,6 +27,42 @@ public class FeatureServiceImpl implements  FeatureService {
                               FeatureConfigRepository featureConfigRepository) {
         this.featureRepository = featureRepository;
         this.featureConfigRepository = featureConfigRepository;
+    }
+
+    @Override
+    public FeatureDetailDTO createFeature(FeatureDetailDTO featureDetailDTO) {
+        if(featureRepository.existsByName(featureDetailDTO.getName())) {
+            throw new IllegalArgumentException("Feature name already exists");
+        }
+
+        List<FeatureConfig> lstFeatureConfigEntity = new ArrayList<>();
+
+        if (featureDetailDTO.getConfigs() != null && !featureDetailDTO.getConfigs().isEmpty()) {
+            FeatureConfig featureConfigEntity = FeatureConfig.builder()
+                    .environment(featureDetailDTO.getConfigs().get(0).getEnvironment())
+                    .clientId(featureDetailDTO.getConfigs().get(0).getClientId())
+                    .enabled(featureDetailDTO.getConfigs().get(0).getEnabled())
+                    .build();
+            lstFeatureConfigEntity.add(featureConfigEntity);
+        }
+
+        Feature featureEntity = Feature.builder()
+                .name(featureDetailDTO.getName())
+                .description(featureDetailDTO.getDescription())
+                .enabledByDefault(featureDetailDTO.getEnabledByDefault() == null ? Boolean.FALSE : featureDetailDTO.getEnabledByDefault())
+                .configs(lstFeatureConfigEntity)
+                .build();
+
+        lstFeatureConfigEntity.get(0).setFeature(featureEntity);
+
+        Feature featureSaved = featureRepository.save(featureEntity);
+
+        return FeatureDetailDTO.builder()
+                .id(featureSaved.getId())
+                .name(featureSaved.getName())
+                .description(featureSaved.getDescription())
+                .enabledByDefault(featureSaved.getEnabledByDefault())
+                .build();
     }
 
     @Override
@@ -47,10 +81,15 @@ public class FeatureServiceImpl implements  FeatureService {
     public FeatureDetailDTO getFeatureById(UUID id) {
         Feature feature = featureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Feature not found"));
-        List<String> configNames = feature.getConfigs()
+        List<FeatureConfigDTO> configNames = feature.getConfigs()
                 .stream()
-                .map(config -> config.getEnvironment() + ": " + config.getEnabled())
-                .toList();
+                .map(config -> FeatureConfigDTO.builder()
+                        .id(config.getId())
+                        .environment(config.getEnvironment())
+                        .enabled(config.getEnabled())
+                        .clientId(config.getClientId())
+                        .build())
+                .collect(Collectors.toList());
 
         return new FeatureDetailDTO(
                 feature.getId(),
