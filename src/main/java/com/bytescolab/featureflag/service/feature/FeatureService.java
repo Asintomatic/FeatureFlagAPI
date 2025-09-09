@@ -9,6 +9,8 @@ import java.util.UUID;
 @Service
 public interface FeatureService {
 
+    FeatureDetailDTO createFeature(FeatureDetailDTO featureDetailDTO);
+
     List<FeatureDTO> getAllFeatures();
 
     FeatureDetailDTO getFeatureById(UUID id);
