@@ -38,7 +38,7 @@ public class FeatureController {
     public ResponseEntity<List<FeatureDTO>> getAllFeatures(
             @RequestParam(required = false) Boolean enabled,
             @RequestParam(required = false) String name) {
-        return ResponseEntity.ok(featureService.getAllFeatures());
+        return ResponseEntity.ok(featureService.getAllFeatures(enabled, name));
     }
 
     @GetMapping("/{id}")
