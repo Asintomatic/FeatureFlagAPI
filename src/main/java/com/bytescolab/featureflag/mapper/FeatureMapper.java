@@ -24,14 +24,14 @@ public class FeatureMapper {
                 .build();
 
         if (dto.getConfigs() != null) {
-            List<FeatureConfig> configs = dto.getConfigs().stream().map(cfgDto ->
+            List<FeatureConfig> configs = dto.getConfigs().stream().map(feaConfigDto ->
                 FeatureConfig.builder()
-                    .environment(cfgDto.getEnvironment())
-                    .clientId(cfgDto.getClientId())
-                    .enabled(cfgDto.getEnabled())
+                    .environment(feaConfigDto.getEnvironment())
+                    .clientId(feaConfigDto.getClientId())
+                    .enabled(feaConfigDto.getEnabled())
                     .feature(feature)
                     .build()
-            ).collect(Collectors.toList());
+            ).toList();
 
             feature.setConfigs(configs);
         }

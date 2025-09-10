@@ -2,6 +2,7 @@ package com.bytescolab.featureflag.controller;
 
 import com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO;
 import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
+import com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO;
 import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
 import com.bytescolab.featureflag.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,8 +21,8 @@ public class AuthController {
     private final AuthService auth;
 
     @PostMapping("/register")
-    @Operation(summary = "Register a new user", description = "Creates a user with default role USER")
-    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) {
+    @Operation(summary = "Registrar un nuevo usuario", description = "Registro de un usuario")
+    public ResponseEntity<AuthRegisterResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) {
         return ResponseEntity.ok(auth.register(dto));
     }
 

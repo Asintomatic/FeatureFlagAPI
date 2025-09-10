@@ -4,6 +4,7 @@ import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
 import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.service.feature.FeatureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,8 +37,10 @@ public class FeatureController {
     @GetMapping
     @Operation(summary = "Listar todas las features", description = "Lista todas las features de todos los clientes y entornos")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<FeatureSummaryResponseDTO>> getAllFeatures() {
-        return ResponseEntity.ok(featureService.getAllFeatures());
+    public ResponseEntity<List<FeatureSummaryResponseDTO>> getAllFeatures(
+            @RequestParam (required=false) Boolean enabled,
+            @RequestParam (required=false) String name) {
+        return ResponseEntity.ok(featureService.getAllFeatures(enabled, name));
     }
 
     @GetMapping("/{id}")
@@ -68,7 +71,7 @@ public class FeatureController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<Boolean> isFeatureActived(@RequestParam UUID featureId,
                                                     @RequestParam String clientId,
-                                                    @RequestParam String env) {
+                                                    @RequestParam Environment env) {
         return ResponseEntity.ok(featureService.isFeatureActived(featureId, clientId, env));
     }
 }

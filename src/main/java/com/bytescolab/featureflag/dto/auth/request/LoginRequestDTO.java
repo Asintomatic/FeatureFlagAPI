@@ -9,9 +9,9 @@ import lombok.*;
 @Builder
 public class LoginRequestDTO {
 
-    @NotBlank
+    @NotBlank (message = "Username es necesario")
     private String username;
 
-    @NotBlank
+    @NotBlank (message = "Password es necesario")
     private String password;
 }

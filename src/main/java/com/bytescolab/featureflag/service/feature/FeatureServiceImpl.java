@@ -7,6 +7,7 @@ import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO
 import com.bytescolab.featureflag.mapper.FeatureMapper;
 import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
+import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.repository.FeatureConfigRepository;
 import com.bytescolab.featureflag.repository.FeatureRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +43,31 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public List<FeatureSummaryResponseDTO> getAllFeatures() {
-        return featureRepository.findAll()
-                .stream()
+    public List<FeatureSummaryResponseDTO> getAllFeatures(Boolean enabled, String name) {
+        List<Feature> features;
+        boolean feature;
+
+        if (enabled != null && name != null) {
+            feature = featureRepository.existsByName(name);
+            if(feature){
+                features = featureRepository.findByEnabledByDefaultAndNameContainingIgnoreCase(enabled, name);
+            }else {
+                throw new IllegalArgumentException(" No hay ninguna feature con ese nombre");
+            }
+        } else if (name != null) {
+            feature = featureRepository.existsByName(name);
+            if(feature){
+                features = featureRepository.findByNameContainingIgnoreCase(name);
+            }else {
+                throw new IllegalArgumentException(" No hay ninguna feature con ese nombre");
+            }
+        } else if (enabled != null) {
+            features = featureRepository.findByEnabledByDefault(enabled);
+        } else {
+            features = featureRepository.findAll();
+        }
+
+        return features.stream()
                 .map(FeatureMapper::toSummaryDTO)
                 .toList();
     }
@@ -97,7 +120,7 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public boolean isFeatureActived(UUID featureId, String clientId, String environment) {
+    public boolean isFeatureActived(UUID featureId, String clientId, Environment environment) {
         log.info("Buscando feature con ID: {}", featureId);
         Optional<Feature> featureOpt = featureRepository.findById(featureId);
 

@@ -1,6 +1,8 @@
 package com.bytescolab.featureflag.dto.feature.request;
 
+import com.bytescolab.featureflag.model.enums.Environment;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -9,8 +11,8 @@ import lombok.*;
 @Builder
 public class FeatureActivationRequestDTO {
 
-    @NotBlank (message = "Environment es necesario")
-    private String environment;
+    @NotNull(message = "Environment es necesario")
+    private Environment environment;
 
     @NotBlank (message = "clientId es necesario")
     private String clientId;

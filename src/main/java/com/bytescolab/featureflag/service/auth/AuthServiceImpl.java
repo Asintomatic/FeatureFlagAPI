@@ -2,6 +2,7 @@ package com.bytescolab.featureflag.service.auth;
 
 import com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO;
 import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
+import com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO;
 import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
 import com.bytescolab.featureflag.mapper.UserMapper;
 import com.bytescolab.featureflag.model.entity.User;
@@ -30,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponseDTO register(RegisterRequestDTO dto) {
+    public AuthRegisterResponseDTO register(RegisterRequestDTO dto) {
         if (users.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
@@ -45,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
         User saved = users.save(user);
         log.info("Usuario {} creado con éxito.", user.getUsername());
 
-        return AuthResponseDTO.builder()
+        return AuthRegisterResponseDTO.builder()
                 .username(saved.getUsername())
                 .role(saved.getRole().name())
                 .build();
