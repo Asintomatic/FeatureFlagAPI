@@ -35,7 +35,9 @@ public class FeatureController {
     @GetMapping
     @Operation(summary = "Listar todas las features", description = "Lista todas las features de todos los clientes y entornos")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<FeatureDTO>> getAllFeatures(){
+    public ResponseEntity<List<FeatureDTO>> getAllFeatures(
+            @RequestParam(required = false) Boolean enabled,
+            @RequestParam(required = false) String name) {
         return ResponseEntity.ok(featureService.getAllFeatures());
     }
 

@@ -66,9 +66,18 @@ public class FeatureServiceImpl implements  FeatureService {
     }
 
     @Override
-    public List<FeatureDTO> getAllFeatures() {
-        return featureRepository.findAll()
-                .stream()
+    public List<FeatureDTO> getAllFeatures(Boolean enabled, String name) {
+        List<Feature> features;
+        if (enabled != null && name != null){
+            features = featureRepository.findByEnabledByDefaultAndNameContainingIgnoreCase(enabled, name);
+        } else if (enabled != null) {
+            features = featureRepository.findByEnabledByDefault(enabled);
+        } else if (name !=  null) {
+            features = featureRepository.findByNameContainingIgnoreCase(name);
+        } else {
+            features = featureRepository.findAll();
+        }
+        return  features.stream()
                 .map(feature -> new FeatureDTO(
                         feature.getId(),
                         feature.getName(),

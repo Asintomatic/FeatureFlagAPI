@@ -11,7 +11,7 @@ public interface FeatureService {
 
     FeatureDetailDTO createFeature(FeatureDetailDTO featureDetailDTO);
 
-    List<FeatureDTO> getAllFeatures();
+    List<FeatureDTO> getAllFeatures(Boolean enabled, String name);
 
     FeatureDetailDTO getFeatureById(UUID id);
 
