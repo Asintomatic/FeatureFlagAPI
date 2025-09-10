@@ -1,21 +1,21 @@
 package com.bytescolab.featureflag.service.auth;
 
-import com.bytescolab.featureflag.dto.auth.LoginDTO;
-import com.bytescolab.featureflag.dto.auth.RegisterDTO;
-import com.bytescolab.featureflag.dto.auth.AuthResponseDTO;
+import com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO;
+import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
+import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
+import com.bytescolab.featureflag.mapper.UserMapper;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
 import com.bytescolab.featureflag.repository.UserRepository;
-import com.bytescolab.featureflag.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.authentication.AuthenticationManager;
 import com.bytescolab.featureflag.security.jwt.JwtUtils;
 
 @Slf4j
@@ -25,44 +25,34 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository users;
     private final PasswordEncoder encoder;
-
     private final AuthenticationManager authenticationManager;
-
     private final JwtUtils jwtUtils;
 
     @Override
     @Transactional
-    public AuthResponseDTO register(RegisterDTO dto) {
-
+    public AuthResponseDTO register(RegisterRequestDTO dto) {
         if (users.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
 
-        String hash = encoder.encode(dto.getPassword());
+        User user = UserMapper.toEntity(dto);
+        user.setPassword(encoder.encode(dto.getPassword()));
 
-        User u = User.builder()
-                .username(dto.getUsername())
-                .password(hash)
-                .role(Role.USER)
-                .build();
-        if ( u.getUsername().equals("Admin")|| u.getUsername().equals("ADMIN")){
-            u.setRole(Role.ADMIN);
+        if (user.getUsername().equalsIgnoreCase("admin")) {
+            user.setRole(Role.ADMIN);
         }
-        User saved = users.save(u);
 
-        log.info("Usuario {} creado con exito.", u.getUsername());
-
+        User saved = users.save(user);
+        log.info("Usuario {} creado con éxito.", user.getUsername());
 
         return AuthResponseDTO.builder()
-                .id(saved.getId())
                 .username(saved.getUsername())
                 .role(saved.getRole().name())
                 .build();
-
     }
 
     @Override
-    public AuthResponseDTO login(LoginDTO dto) {
+    public AuthResponseDTO login(LoginRequestDTO dto) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
         );
@@ -72,7 +62,9 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtils.generateToken(principal);
         long expMillis = jwtUtils.extractExpirationMillis(token);
+
         log.info("Usuario: {} logueado con Bearer: {}", dto.getUsername(), token);
+
         return AuthResponseDTO.builder()
                 .accessToken(token)
                 .expiresAt(expMillis)

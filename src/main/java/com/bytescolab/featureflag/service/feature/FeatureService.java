@@ -1,24 +1,24 @@
 package com.bytescolab.featureflag.service.feature;
 
-import com.bytescolab.featureflag.dto.feature.FeatureDTO;
-import com.bytescolab.featureflag.dto.feature.FeatureDetailDTO;
-import org.springframework.stereotype.Service;
+import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
 
 import java.util.List;
 import java.util.UUID;
-@Service
+
 public interface FeatureService {
 
-    FeatureDetailDTO createFeature(FeatureDetailDTO featureDetailDTO);
+    FeatureDetailResponseDTO createFeature(FeatureCreateRequestDTO dto);
 
-    List<FeatureDTO> getAllFeatures();
+    List<FeatureSummaryResponseDTO> getAllFeatures();
 
-    FeatureDetailDTO getFeatureById(UUID id);
+    FeatureDetailResponseDTO getFeatureById(UUID id);
 
-    String enableFeatureForClientOrEnv(UUID featureId, String clientId, String environment);
+    String enableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto);
 
-    String disableFeatureForClientOrEnv(UUID featureId, String clientId, String environment);
+    String disableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto);
 
     boolean isFeatureActived(UUID featureId, String clientId, String environment);
-
 }
