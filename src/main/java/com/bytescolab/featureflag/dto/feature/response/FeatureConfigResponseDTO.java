@@ -2,7 +2,11 @@ package com.bytescolab.featureflag.dto.feature.response;
 
 import com.bytescolab.featureflag.model.enums.Environment;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.UUID;
 
 @Data
