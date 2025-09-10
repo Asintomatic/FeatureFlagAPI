@@ -16,6 +16,7 @@ public class RegisterRequestDTO {
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 6, max = 16, message = "La contraseña debe tener entre 6 y 16 caracteres")
-    @Pattern(regexp = ".*\\d.*", message = "La contraseña debe contener al menos un número")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,16}$",
+            message = "La contraseña debe contener al menos una minúscula, una mayúscula, un número y un carácter especial")
     private String password;
 }
