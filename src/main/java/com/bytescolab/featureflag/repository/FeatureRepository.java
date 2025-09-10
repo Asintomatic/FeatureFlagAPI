@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface FeatureRepository extends JpaRepository <Feature, UUID> {
+
     boolean existsByName(String name);
 
     List<Feature> findByEnabledByDefault(Boolean enabled);
@@ -16,6 +17,5 @@ public interface FeatureRepository extends JpaRepository <Feature, UUID> {
     List<Feature> findByNameContainingIgnoreCase(String name);
 
     List<Feature> findByEnabledByDefaultAndNameContainingIgnoreCase(Boolean enabled, String name);
-
 
 }

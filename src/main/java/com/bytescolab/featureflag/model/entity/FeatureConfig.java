@@ -1,6 +1,7 @@
 package com.bytescolab.featureflag.model.entity;
 
 
+import com.bytescolab.featureflag.model.enums.Environment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +27,8 @@ public class FeatureConfig {
     private Feature feature;
 
     @Column(name = "environment", nullable = false)
-    private String environment;
+    @Enumerated(EnumType.STRING)
+    private Environment environment;
 
     @Column(name = "client_id", nullable = false)
     private String clientId;

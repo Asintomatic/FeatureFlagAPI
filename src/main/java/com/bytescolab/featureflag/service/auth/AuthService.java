@@ -1,10 +1,13 @@
 package com.bytescolab.featureflag.service.auth;
 
-import com.bytescolab.featureflag.dto.auth.AuthResponseDTO;
-import com.bytescolab.featureflag.dto.auth.LoginDTO;
-import com.bytescolab.featureflag.dto.auth.RegisterDTO;
+import com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO;
+import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
+import com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO;
+import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
 
 public interface AuthService {
-    AuthResponseDTO register(RegisterDTO dto);
-    AuthResponseDTO login(LoginDTO dto);
+
+    AuthRegisterResponseDTO register(RegisterRequestDTO dto);
+
+    AuthResponseDTO login(LoginRequestDTO dto);
 }
