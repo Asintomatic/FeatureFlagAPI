@@ -4,6 +4,8 @@ import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
 import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.exception.ApiException;
+import com.bytescolab.featureflag.exception.ErrorCodes;
 import com.bytescolab.featureflag.mapper.FeatureMapper;
 import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
@@ -75,7 +77,7 @@ public class FeatureServiceImpl implements FeatureService {
     @Override
     public FeatureDetailResponseDTO getFeatureById(UUID id) {
         Feature feature = featureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Feature no encontrada"));
+                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
 
         return FeatureMapper.toDetailResponseDTO(feature);
     }
@@ -83,7 +85,7 @@ public class FeatureServiceImpl implements FeatureService {
     @Override
     public String enableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
         Feature feature = featureRepository.findById(featureId)
-                .orElseThrow(() -> new RuntimeException("Feature no encontrada"));
+                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
 
         FeatureConfig config = featureConfigRepository
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
@@ -106,7 +108,7 @@ public class FeatureServiceImpl implements FeatureService {
     @Override
     public String disableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
         Feature feature = featureRepository.findById(featureId)
-                .orElseThrow(() -> new RuntimeException("Feature no encontrada"));
+                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
 
         FeatureConfig config = featureConfigRepository
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())

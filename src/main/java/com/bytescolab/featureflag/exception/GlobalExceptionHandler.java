@@ -6,7 +6,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -15,56 +17,95 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(TokenExpiradoException.class)
-    public ResponseEntity<Object> handleTokenExpirado(TokenExpiradoException ex){
-        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<Object> handleApiException (ApiException exception, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", getStatusForCode(exception.getCode()).value());
+        body.put("error", getErrorName(getStatusForCode(exception.getCode())));
+        body.put("code", exception.getCode());
+        body.put("message", exception.getMessage());
+        body.put("path", request.getDescription(false));
+        return new ResponseEntity<>(body, getStatusForCode(exception.getCode()));
+    }
+    private HttpStatus getStatusForCode(String code) {
+        if (code.startsWith("AUTH_")) {
+            return HttpStatus.UNAUTHORIZED;
+        }
+        return HttpStatus.BAD_REQUEST;  // Default
     }
 
-    @ExceptionHandler(TokenInvalidoException.class)
-    public ResponseEntity<Object> handleTokenInvalido(TokenInvalidoException ex){
-        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+    private String getErrorName(HttpStatus status) {
+        return status.getReasonPhrase();
     }
-    @ExceptionHandler(TokenMalFormadoException.class)
-    public ResponseEntity<Object> handleTokenMalformado(TokenExpiradoException ex){
-        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
-    }
+
+//    @ExceptionHandler(TokenExpiradoException.class)
+//    public ResponseEntity<Object> handleTokenExpirado(TokenExpiradoException ex){
+//        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+//    }
+//
+//    @ExceptionHandler(TokenInvalidoException.class)
+//    public ResponseEntity<Object> handleTokenInvalido(TokenInvalidoException ex){
+//        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
+//    }
+//    @ExceptionHandler(TokenMalFormadoException.class)
+//    public ResponseEntity<Object> handleTokenMalformado(TokenExpiradoException ex){
+//        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex){
         Map<String, String> fields = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(fe -> fields.putIfAbsent(fe.getField(), fe.getDefaultMessage()));
-        Map<String, Object> body = base(HttpStatus.BAD_REQUEST, "Validation failed");
-        body.put("validation", fields);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Bad Request");
+        body.put("message", "Errores de validación en la solicitud");
+
+        body.put("errors", fields);
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Object> handleBadCreds(BadCredentialsException ex){
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid username or password");
-    }
+//    @ExceptionHandler(BadCredentialsException.class)
+//    public ResponseEntity<Object> handleBadCreds(BadCredentialsException ex){
+//        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+//    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArg(IllegalArgumentException ex) {
         Map<String,Object> body = new HashMap<>();
-        body.put("timestamp", java.time.Instant.now().toString());
-        body.put("status", 409);
-        body.put("error", "Conflict");
+        body.put("timestamp", Instant.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Bad Request");
         body.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    private ResponseEntity<Object> buildResponse (HttpStatus status, String message){
-        return new ResponseEntity<>(base(status, message), status);
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("error", "Internal Server Error");
+        body.put("message", ex.getMessage());
+        body.put("path", request.getDescription(false));
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private Map<String,Object> base(HttpStatus status, String message){
-        Map<String,Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
-        return body;
-    }
+//    private ResponseEntity<Object> buildResponse (HttpStatus status, String message){
+//        return new ResponseEntity<>(base(status, message), status);
+//    }
+//
+//    private Map<String,Object> base(HttpStatus status, String message){
+//        Map<String,Object> body = new HashMap<>();
+//        body.put("timestamp", LocalDateTime.now());
+//        body.put("status", status.value());
+//        body.put("error", status.getReasonPhrase());
+//        body.put("message", message);
+//        return body;
+//    }
 
 }

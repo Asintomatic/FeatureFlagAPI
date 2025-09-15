@@ -1,5 +1,7 @@
 package com.bytescolab.featureflag.service.user;
 
+import com.bytescolab.featureflag.exception.ApiException;
+import com.bytescolab.featureflag.exception.ErrorCodes;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
 import com.bytescolab.featureflag.repository.UserRepository;
@@ -23,7 +25,7 @@ public class UserService {
     @Transactional
     public String updateUserRole(UUID userId, String newRole) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + userId));
+                .orElseThrow(() -> new ApiException(ErrorCodes.USER_NOT_FOUND, ErrorCodes.USER_NOT_FOUND_MSG));
 
         Role role = Role.valueOf(newRole.toUpperCase());
         user.setRole(role);

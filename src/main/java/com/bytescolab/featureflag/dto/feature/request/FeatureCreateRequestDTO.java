@@ -1,6 +1,7 @@
 package com.bytescolab.featureflag.dto.feature.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class FeatureCreateRequestDTO {
     @Schema(example = "true", description = "Indica si la feature está activa por defecto")
     private Boolean enabledByDefault;
 
+    @Valid
     @Schema(description = "Configuraciones por entorno/cliente para esta feature")
     private List<FeatureConfigCreateRequestDTO> configs;
 }
