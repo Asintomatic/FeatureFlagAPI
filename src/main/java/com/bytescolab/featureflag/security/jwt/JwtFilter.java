@@ -1,10 +1,8 @@
 package com.bytescolab.featureflag.security.jwt;
 
+import com.bytescolab.featureflag.exception.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import com.bytescolab.featureflag.exception.TokenExpiradoException;
-import com.bytescolab.featureflag.exception.TokenInvalidoException;
-import com.bytescolab.featureflag.exception.TokenMalFormadoException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,18 +74,14 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
 
-        } catch (TokenExpiradoException e) {
-            log.error("Token expirado: {}", e.getMessage());
+        } catch (ApiException e) {
+            switch (e.getCode()) {
+                case ErrorCodes.TOKEN_EXPIRADO -> log.error("Token expirado: {}", e.getMessage());
+                case ErrorCodes.TOKEN_MALFORMADO -> log.error("Token mal formado: {}", e.getMessage());
+                case ErrorCodes.TOKEN_INVALIDO -> log.error("Error al validar el token JWT: {}", e.getMessage());
+            }
             SecurityContextHolder.clearContext();
-            throw new TokenExpiradoException("El token ha expirado");
-        } catch (TokenMalFormadoException e) {
-            log.error("Token mal formado: {}", e.getMessage());
-            SecurityContextHolder.clearContext();
-            throw new TokenMalFormadoException("El token está mal formado");
-        } catch (TokenInvalidoException e) {
-            log.error("Error al validar el token JWT: {}", e.getMessage());
-            SecurityContextHolder.clearContext();
-            throw new TokenInvalidoException("El token no ha podido ser validado.");
+            throw e;  // Re-lanza la ApiException
         }
 
         filterChain.doFilter(request, response);

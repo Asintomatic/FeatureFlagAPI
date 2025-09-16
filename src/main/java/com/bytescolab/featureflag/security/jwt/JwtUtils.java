@@ -1,8 +1,6 @@
 package com.bytescolab.featureflag.security.jwt;
 
-import com.bytescolab.featureflag.exception.TokenExpiradoException;
-import com.bytescolab.featureflag.exception.TokenInvalidoException;
-import com.bytescolab.featureflag.exception.TokenMalFormadoException;
+import com.bytescolab.featureflag.exception.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -46,11 +44,11 @@ public class JwtUtils {
                     .getBody()
                     .getSubject();
         } catch (ExpiredJwtException e) {
-            throw new TokenExpiradoException("El token ha expirado");
+            throw new ApiException(ErrorCodes.TOKEN_EXPIRADO, ErrorCodes.TOKEN_EXPIRADO_MSG);
         } catch (MalformedJwtException | UnsupportedJwtException e) {
-            throw new TokenMalFormadoException("Token mal formado");
+            throw new ApiException(ErrorCodes.TOKEN_MALFORMADO, ErrorCodes.TOKEN_MALFORMADO_MSG);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new TokenInvalidoException("Token inválido");
+            throw new ApiException(ErrorCodes.TOKEN_INVALIDO, ErrorCodes.TOKEN_INVALIDO_MSG);
         }
     }
 
@@ -84,11 +82,11 @@ public class JwtUtils {
                     .getExpiration()
                     .getTime();
         } catch (ExpiredJwtException e) {
-            throw new TokenExpiradoException("El token ha expirado");
+            throw new ApiException(ErrorCodes.TOKEN_EXPIRADO, ErrorCodes.TOKEN_EXPIRADO_MSG);
         } catch (MalformedJwtException | UnsupportedJwtException e) {
-            throw new TokenMalFormadoException("Token mal formado");
+            throw new ApiException(ErrorCodes.TOKEN_MALFORMADO, ErrorCodes.TOKEN_MALFORMADO_MSG);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new TokenInvalidoException("Token inválido");
+            throw new ApiException(ErrorCodes.TOKEN_INVALIDO, ErrorCodes.TOKEN_INVALIDO_MSG);
         }
     }
 }
