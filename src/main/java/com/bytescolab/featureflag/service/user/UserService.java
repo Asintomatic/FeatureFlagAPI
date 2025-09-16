@@ -23,16 +23,16 @@ public class UserService {
     }
 
     @Transactional
-    public String updateUserRole(UUID userId, String newRole) {
-        User user = userRepository.findById(userId)
+    public String updateUserRole(String name, String newRole) {
+        User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new ApiException(ErrorCodes.USER_NOT_FOUND, ErrorCodes.USER_NOT_FOUND_MSG));
 
         Role role = Role.valueOf(newRole.toUpperCase());
         user.setRole(role);
         userRepository.save(user);
 
-        String msg = String.format("Usuario %s actualizado correctamente con rol: %s", user.getUsername(), role.name());
-        log.info("Usuario {} actualizado correctamente con rol: {}", user.getUsername(), role.name());
+        String msg = String.format("Usuario %s actualizado correctamente con rol: %s", name, role.name());
+        log.info("Usuario {} actualizado correctamente con rol: {}", name, role.name());
         return msg;
     }
 }

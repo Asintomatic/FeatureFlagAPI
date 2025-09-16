@@ -28,11 +28,11 @@ public class UserController {
         this.userService= userService;
     }
 
-    @PutMapping("/{userId}/role")
+    @PutMapping("/{name}/role")
     @Operation(summary = "Cambio rol", description = "Endpoint para el cambio de rol de un usuario")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateUserRole (@PathVariable UUID userId, @RequestBody @Valid UserRoleUpdateRequestDTO request){
-    return ResponseEntity.ok(userService.updateUserRole(userId, request.getRole()));
+    public ResponseEntity<String> updateUserRole (@PathVariable String name , @RequestBody @Valid UserRoleUpdateRequestDTO request){
+    return ResponseEntity.ok(userService.updateUserRole(name, request.getRole()));
     }
 
 }

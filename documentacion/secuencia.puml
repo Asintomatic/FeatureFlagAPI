@@ -1,0 +1,38 @@
+@startuml
+actor Usuario
+participant "AuthController" as AC
+participant "FeatureController" as FC
+participant "FeatureService" as FS
+participant "FeatureRepository" as FR
+participant "FeatureConfigRepository" as FCR
+
+Usuario -> AC : Solicita JWT (Login)
+AC --> Usuario : JWT
+
+Usuario -> FC : GET /api/features/check?feature=dark_mode&clientId=acme&env=pre
+FC -> FS : isFeatureEnabled("dark_mode", "acme", "pre")
+
+FS -> FR : findByName("dark_mode")
+FR --> FS : Feature
+
+alt existe Feature
+    FS -> FCR : findByFeatureAndClientIdAndEnvironment(...)
+    alt hay config específica
+        FCR --> FS : FeatureConfig (clientId + env)
+        FS --> FC : return FeatureConfig.enabled
+    else
+        FS -> FCR : findByFeatureAndEnvironment(...)
+        alt hay config por entorno
+            FCR --> FS : FeatureConfig (solo env)
+            FS --> FC : return FeatureConfig.enabled
+        else
+            FS --> FC : return Feature.enabledByDefault
+        end
+    end
+else
+    FS --> FC : throw FeatureNotFoundException
+end
+
+FC --> Usuario : Response 200 OK + enabled: true|false
+
+@enduml

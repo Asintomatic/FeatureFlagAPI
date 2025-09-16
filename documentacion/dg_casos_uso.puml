@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+
+actor Usuario
+actor "Usuario Autenticado" as AuthUser
+actor "Administrador" as Admin
+
+rectangle "FeatureFlag API" {
+  Usuario --> (Registro de Usuario)
+  Usuario --> (Login con JWT)
+
+  AuthUser --> (Consultar todas las features)
+  AuthUser --> (Consultar una feature por ID)
+  AuthUser --> (Verificar si una feature está activa)
+
+  Admin --> (Crear nueva feature)
+  Admin --> (Activar feature para cliente/entorno)
+  Admin --> (Desactivar feature para cliente/entorno)
+}
+
+@enduml

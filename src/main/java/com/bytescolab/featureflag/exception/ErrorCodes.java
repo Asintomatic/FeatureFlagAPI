@@ -11,6 +11,9 @@ public final class ErrorCodes {
     public static final String TOKEN_INVALIDO = "AUTH_003";
     public static final String TOKEN_INVALIDO_MSG = "Token inválido";
 
+    public static final String INVALID_CREDENTIALS = "AUTH_004";
+    public static final String INVALID_CREDENTIALS_MSG ="Credenciales no válidas";
+
     // Feature errors (agrega más según necesites)
     public static final String FEATURE_NOT_FOUND = "FF_001";
     public static final String FEATURE_NOT_FOUND_MSG = "Feature no encontrada";

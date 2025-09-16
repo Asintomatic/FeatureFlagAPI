@@ -1,0 +1,770 @@
+{
+	"id": "30cfddc5-0443-4bd9-bd04-89821267d687",
+	"name": "FeatureFlagAPI - Test_Collection_1.1",
+	"timestamp": "2025-09-16T19:36:42.433Z",
+	"collection_id": "48306348-b087f9e6-9fd5-410d-8e4e-becdc30146e8",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-09-16T19:36:37.953Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "4ca2bd1e-e81b-47e7-82ce-9c4e5bded8fe",
+			"name": "Se hace registro válido",
+			"url": "http://localhost:8080/api/auth/register",
+			"time": 72,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				72
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "d16ab33e-f471-4b4d-b335-4d5d2efce6a3",
+			"name": "Se hace registro válido ADMIN",
+			"url": "http://localhost:8080/api/auth/register",
+			"time": 69,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				69
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "14a3ccaf-0777-4bc0-a194-b7f89c05826a",
+			"name": "Se hace registro de usuario duplicado",
+			"url": "http://localhost:8080/api/auth/register",
+			"time": 23,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				23
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "4667c1b3-44d8-49b0-8267-d193fa7ac9d9",
+			"name": "Se hace registro con campos vacios",
+			"url": "http://localhost:8080/api/auth/register",
+			"time": 13,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				13
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "908f226d-4baf-4f8f-8d91-204cca7a80ad",
+			"name": "Login correcto",
+			"url": "http://localhost:8080/api/auth/login",
+			"time": 199,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				199
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "27446158-4da2-432b-be95-b8ea47398cc3",
+			"name": "Login correcto ADMIN",
+			"url": "http://localhost:8080/api/auth/login",
+			"time": 74,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				74
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "06ac8ba4-bd94-4995-9d7c-3c4bedcdb2b4",
+			"name": "Login password incorrecta",
+			"url": "http://localhost:8080/api/auth/login",
+			"time": 71,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				71
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "f7c29439-36e0-4da8-bce5-f129fad5d927",
+			"name": "Login usuario no registrado",
+			"url": "http://localhost:8080/api/auth/login",
+			"time": 69,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				69
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "5ae31c06-0c54-43a4-9710-71fa2bb1c7f1",
+			"name": "Admin cambia a rol ADMIN a otro usuario",
+			"url": "http://localhost:8080/api/users/{id}/role",
+			"time": 49,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				49
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "f6863c33-f75f-4896-b41c-a5b04afe4d79",
+			"name": "Admin cambia a rol USER a otro usuario",
+			"url": "http://localhost:8080/api/users/{id}/role",
+			"time": 14,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				14
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "0a59b4ef-4052-45a8-b0da-efba51d0eb45",
+			"name": "Usuario no Admin, intenta cambiar rol",
+			"url": "http://localhost:8080/api/users/{id}/role",
+			"time": 15,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				15
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "67332b15-c38b-4da6-94f9-e61ec619701e",
+			"name": "Crear Feature - rol ADMIN - sin config",
+			"url": "http://localhost:8080/api/features",
+			"time": 53,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				53
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "b6bb735a-c49a-43ef-851e-839a67961962",
+			"name": "Crear Feature - rol USER- sin config",
+			"url": "http://localhost:8080/api/features",
+			"time": 18,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				18
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "cc27a6ee-7f4f-4ff1-90ef-34b10fa6d3c6",
+			"name": "Crear Feature - rol ADMIN - con configs",
+			"url": "http://localhost:8080/api/features",
+			"time": 80,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				80
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "8e44771e-acd4-4bf6-ac7c-74fa29457fce",
+			"name": "Crear Feature - rol USER- con configs",
+			"url": "http://localhost:8080/api/features",
+			"time": 23,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				23
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "62d12166-73ab-4a19-9a97-daf72e352259",
+			"name": "Crear Feature - rol ADMIN - Campos obligatorios vacíos",
+			"url": "http://localhost:8080/api/features",
+			"time": 14,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				14
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "2316736c-cb0a-498c-b0c2-248423a00e99",
+			"name": "Crear Feature - rol ADMIN - Sin enabledByDefault",
+			"url": "http://localhost:8080/api/features",
+			"time": 12,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				12
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "83a0e360-c87f-4231-9812-ba0e3b99f8b1",
+			"name": "Crear Feature - rol ADMIN - Environment inválido",
+			"url": "http://localhost:8080/api/features",
+			"time": 16,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				16
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "ae7af538-1677-4894-aed9-21d3b895f4cd",
+			"name": "Usuario logueado y autenticado lista features",
+			"url": "http://localhost:8080/api/features",
+			"time": 34,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				34
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "99b0c168-11d2-4255-8195-66ae61333b69",
+			"name": "Sin token",
+			"url": "http://localhost:8080/api/features",
+			"time": 5,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				5
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "c0a340e2-b015-4c15-bdec-9a243b95da64",
+			"name": "Usuario logueado y autenticado lista feature con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b",
+			"time": 28,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				28
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "6ab9c4fa-e9f1-4de2-b034-a587e023566f",
+			"name": "Sin token con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b",
+			"time": 5,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				5
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "6d9abbcf-bed3-42a7-bd8b-f657bcde3386",
+			"name": "Usuario logueado y autenticado lista feature con ID  NO válido",
+			"url": "http://localhost:8080/api/features/a13066d3-d353-462a-a863-7d8512565f93",
+			"time": 13,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				13
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "e4fbb003-146e-46f0-b8bf-f1f917659780",
+			"name": "Usuario logueado y autenticado con rol ADMIN activa feature con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b/enable",
+			"time": 51,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				51
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "beff9a69-42de-458d-bcd4-66c4224ff67f",
+			"name": "Usuario logueado y autenticado con rol ADMIN  activa feature con ID  NO válido",
+			"url": "http://localhost:8080/api/features/a13066d3-d353-462a-a863-7d8512565f93/enable",
+			"time": 18,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				18
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "1c02da59-c033-4a96-ba86-2c1ffdf96b69",
+			"name": "Usuario logueado y autenticado con rol USER activa feature con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b/enable",
+			"time": 18,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				18
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "a047455b-3e1f-42ef-950f-7fd189017348",
+			"name": "Sin token, activa feature con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b/enable",
+			"time": 5,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				5
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "40c4e5c9-523d-49d8-917a-f6ca4ba3f6c4",
+			"name": "Usuario logueado y autenticado con rol ADMIN desactiva feature con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b/disable",
+			"time": 29,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				29
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "0d1a0e8b-fb8e-4290-98aa-633bfde904c3",
+			"name": "Usuario logueado y autenticado con rol ADMIN  desactiva feature con ID  NO válido",
+			"url": "http://localhost:8080/api/features/a13066d3-d353-462a-a863-7d8512565f93/disable",
+			"time": 14,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				14
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "291b0f92-6a5f-40da-a4e6-c6ca79786686",
+			"name": "Usuario logueado y autenticado con rol USER desactiva feature con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b/disable",
+			"time": 14,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				14
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "21e304c9-09a7-478f-9aff-0e0d5166052e",
+			"name": "Sin token, desactiva feature con ID válido",
+			"url": "http://localhost:8080/api/features/53a04a85-babd-4549-b836-167d0fcb1b3b/disable",
+			"time": 4,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				4
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "0d0db083-0f74-441c-8e5b-564aa1d92919",
+			"name": "Usuario logueado y autenticado con rol ADMIN comprobar feature con id, clientId y env",
+			"url": "http://localhost:8080/api/features/check?featureId=53a04a85-babd-4549-b836-167d0fcb1b3b&clientId=1&env=PROD",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				16
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "ae957efd-f1fa-499c-86c2-2a382d9419b0",
+			"name": "Usuario logueado y autenticado con rol USER comprobar feature con id, clientId y env",
+			"url": "http://localhost:8080/api/features/check?featureId=53a04a85-babd-4549-b836-167d0fcb1b3b&clientId=1&env=PROD",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				18
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "ea629760-4a48-439f-ad14-1a23eef0e63d",
+			"name": "Sin token, desactiva feature con ID válido",
+			"url": "http://localhost:8080/api/features/check?featureId=53a04a85-babd-4549-b836-167d0fcb1b3b&clientId=1&env=PROD",
+			"time": 6,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				6
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 1162,
+	"collection": {
+		"requests": [
+			{
+				"id": "4ca2bd1e-e81b-47e7-82ce-9c4e5bded8fe",
+				"method": "POST"
+			},
+			{
+				"id": "d16ab33e-f471-4b4d-b335-4d5d2efce6a3",
+				"method": "POST"
+			},
+			{
+				"id": "14a3ccaf-0777-4bc0-a194-b7f89c05826a",
+				"method": "POST"
+			},
+			{
+				"id": "4667c1b3-44d8-49b0-8267-d193fa7ac9d9",
+				"method": "POST"
+			},
+			{
+				"id": "908f226d-4baf-4f8f-8d91-204cca7a80ad",
+				"method": "POST"
+			},
+			{
+				"id": "27446158-4da2-432b-be95-b8ea47398cc3",
+				"method": "POST"
+			},
+			{
+				"id": "06ac8ba4-bd94-4995-9d7c-3c4bedcdb2b4",
+				"method": "POST"
+			},
+			{
+				"id": "f7c29439-36e0-4da8-bce5-f129fad5d927",
+				"method": "POST"
+			},
+			{
+				"id": "5ae31c06-0c54-43a4-9710-71fa2bb1c7f1",
+				"method": "PUT"
+			},
+			{
+				"id": "f6863c33-f75f-4896-b41c-a5b04afe4d79",
+				"method": "PUT"
+			},
+			{
+				"id": "0a59b4ef-4052-45a8-b0da-efba51d0eb45",
+				"method": "PUT"
+			},
+			{
+				"id": "67332b15-c38b-4da6-94f9-e61ec619701e",
+				"method": "POST"
+			},
+			{
+				"id": "b6bb735a-c49a-43ef-851e-839a67961962",
+				"method": "POST"
+			},
+			{
+				"id": "cc27a6ee-7f4f-4ff1-90ef-34b10fa6d3c6",
+				"method": "POST"
+			},
+			{
+				"id": "8e44771e-acd4-4bf6-ac7c-74fa29457fce",
+				"method": "POST"
+			},
+			{
+				"id": "62d12166-73ab-4a19-9a97-daf72e352259",
+				"method": "POST"
+			},
+			{
+				"id": "2316736c-cb0a-498c-b0c2-248423a00e99",
+				"method": "POST"
+			},
+			{
+				"id": "83a0e360-c87f-4231-9812-ba0e3b99f8b1",
+				"method": "POST"
+			},
+			{
+				"id": "ae7af538-1677-4894-aed9-21d3b895f4cd",
+				"method": "GET"
+			},
+			{
+				"id": "99b0c168-11d2-4255-8195-66ae61333b69",
+				"method": "GET"
+			},
+			{
+				"id": "c0a340e2-b015-4c15-bdec-9a243b95da64",
+				"method": "GET"
+			},
+			{
+				"id": "6ab9c4fa-e9f1-4de2-b034-a587e023566f",
+				"method": "GET"
+			},
+			{
+				"id": "6d9abbcf-bed3-42a7-bd8b-f657bcde3386",
+				"method": "GET"
+			},
+			{
+				"id": "e4fbb003-146e-46f0-b8bf-f1f917659780",
+				"method": "POST"
+			},
+			{
+				"id": "beff9a69-42de-458d-bcd4-66c4224ff67f",
+				"method": "POST"
+			},
+			{
+				"id": "1c02da59-c033-4a96-ba86-2c1ffdf96b69",
+				"method": "POST"
+			},
+			{
+				"id": "a047455b-3e1f-42ef-950f-7fd189017348",
+				"method": "POST"
+			},
+			{
+				"id": "40c4e5c9-523d-49d8-917a-f6ca4ba3f6c4",
+				"method": "POST"
+			},
+			{
+				"id": "0d1a0e8b-fb8e-4290-98aa-633bfde904c3",
+				"method": "POST"
+			},
+			{
+				"id": "291b0f92-6a5f-40da-a4e6-c6ca79786686",
+				"method": "POST"
+			},
+			{
+				"id": "21e304c9-09a7-478f-9aff-0e0d5166052e",
+				"method": "POST"
+			},
+			{
+				"id": "0d0db083-0f74-441c-8e5b-564aa1d92919",
+				"method": "GET"
+			},
+			{
+				"id": "ae957efd-f1fa-499c-86c2-2a382d9419b0",
+				"method": "GET"
+			},
+			{
+				"id": "ea629760-4a48-439f-ad14-1a23eef0e63d",
+				"method": "GET"
+			}
+		]
+	}
+}

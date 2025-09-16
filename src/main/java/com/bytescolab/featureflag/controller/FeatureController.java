@@ -37,7 +37,7 @@ public class FeatureController {
 
     @PostMapping
     @Operation(summary = "Crear nueva feature", description = "Crea una nueva Feature con su respectiva información de FeatureConfig")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<FeatureDetailResponseDTO> createFeature(@Valid @RequestBody FeatureCreateRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(featureService.createFeature(dto));
     }

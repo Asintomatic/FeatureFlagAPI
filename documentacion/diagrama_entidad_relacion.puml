@@ -1,0 +1,36 @@
+@startuml
+' Estilo
+hide circle
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor White
+  BorderColor Black
+}
+
+entity Feature {
+  * id : UUID <<PK>>
+  --
+  name : String
+  description : String
+  enabled_by_default : Boolean
+}
+
+entity FeatureConfig {
+  * id : UUID <<PK>>
+  --
+  environment : String
+  client_id : String
+  enabled : Boolean
+  feature_id : UUID <<FK>>
+}
+
+entity User {
+  * id : UUID <<PK>>
+  --
+  username : String
+  password : String
+  role : String
+}
+
+FeatureConfig }o--|| Feature : feature_id
+@enduml

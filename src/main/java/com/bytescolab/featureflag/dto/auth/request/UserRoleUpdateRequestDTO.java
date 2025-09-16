@@ -13,9 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserRoleUpdateRequestDTO {
 
-    @NotBlank (message = "Username es necesario")
-    private String username;
-
     @NotBlank (message = "Role es necesario")
     private String role;
 }
