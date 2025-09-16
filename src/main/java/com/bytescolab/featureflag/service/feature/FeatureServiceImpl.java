@@ -91,6 +91,10 @@ public class FeatureServiceImpl implements FeatureService {
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
                 .orElse(null);
 
+        if(dto.getEnabled().equals(false)){
+            throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        }
+
         if (config == null) {
             config = FeatureMapper.toConfigEntity(dto, feature);
             log.info("Creando nueva configuración para feature '{}'", feature.getName());
@@ -113,7 +117,9 @@ public class FeatureServiceImpl implements FeatureService {
         FeatureConfig config = featureConfigRepository
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
                 .orElseThrow(() -> new RuntimeException("No existe asignación para deshabilitar"));
-
+        if(dto.getEnabled().equals(true)){
+           throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        }
         config.setEnabled(false);
         featureConfigRepository.save(config);
 

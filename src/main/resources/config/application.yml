@@ -36,11 +36,3 @@ logging:
     com.bytescolab.featureflag: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
-  file:
-    name: logs/featureflag.log
-
-  logback:
-    rollingpolicy:
-      max-history: 7
-      max-file-size: 10MB
-      total-size-cap: 100MB

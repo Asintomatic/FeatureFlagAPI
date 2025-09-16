@@ -28,5 +28,9 @@ public final class ErrorCodes {
     public static final String USER_EXISTS = "USER_002";
     public static final String USER_EXISTS_MSG = "Nombre de Usuario ya existe";
 
+    //Genericos
+    public static final String BAD_PARAMS = "PARAMS_001";
+    public static final String BAD_PARAMS_MSG = "Parámetros no aceptados";
+
     private ErrorCodes() {}
 }
