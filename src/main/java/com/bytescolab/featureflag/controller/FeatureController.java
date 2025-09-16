@@ -9,6 +9,7 @@ import com.bytescolab.featureflag.service.feature.FeatureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +39,7 @@ public class FeatureController {
     @Operation(summary = "Crear nueva feature", description = "Crea una nueva Feature con su respectiva información de FeatureConfig")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<FeatureDetailResponseDTO> createFeature(@Valid @RequestBody FeatureCreateRequestDTO dto) {
-        return ResponseEntity.ok(featureService.createFeature(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(featureService.createFeature(dto));
     }
 
     @GetMapping
@@ -48,7 +49,9 @@ public class FeatureController {
     public ResponseEntity<List<FeatureSummaryResponseDTO>> getAllFeatures(
             @RequestParam(required=false) Boolean enabled,
             @RequestParam (required=false) String name) {
-        return ResponseEntity.ok(featureService.getAllFeatures(enabled, name));
+        var featureList = featureService.getAllFeatures(enabled, name);
+        if (featureList.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(featureList);
     }
 
     @GetMapping("/{id}")

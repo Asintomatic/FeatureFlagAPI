@@ -15,9 +15,15 @@ public final class ErrorCodes {
     public static final String FEATURE_NOT_FOUND = "FF_001";
     public static final String FEATURE_NOT_FOUND_MSG = "Feature no encontrada";
 
+    public static final String FEATURE_EXISTS = "FF_002";
+    public static final String FEATURE_EXISTS_MSG = "La feature ya existe";
+
     // User errors
     public static final String USER_NOT_FOUND = "USER_001";
     public static final String USER_NOT_FOUND_MSG = "Usuario no encontrado";
+
+    public static final String USER_EXISTS = "USER_002";
+    public static final String USER_EXISTS_MSG = "Nombre de Usuario ya existe";
 
     private ErrorCodes() {}
 }

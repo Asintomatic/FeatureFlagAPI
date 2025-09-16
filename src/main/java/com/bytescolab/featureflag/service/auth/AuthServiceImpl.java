@@ -4,6 +4,7 @@ import com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO;
 import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
 import com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO;
 import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
+import com.bytescolab.featureflag.exception.ApiException;
 import com.bytescolab.featureflag.mapper.UserMapper;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
@@ -19,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.bytescolab.featureflag.security.jwt.JwtUtils;
 
+import static com.bytescolab.featureflag.exception.ErrorCodes.USER_EXISTS;
+import static com.bytescolab.featureflag.exception.ErrorCodes.USER_EXISTS_MSG;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthRegisterResponseDTO register(RegisterRequestDTO dto) {
         if (users.existsByUsername(dto.getUsername())) {
-            throw new IllegalArgumentException("Username already taken");
+            throw new ApiException(USER_EXISTS, USER_EXISTS_MSG);
         }
 
         User user = UserMapper.toEntity(dto);

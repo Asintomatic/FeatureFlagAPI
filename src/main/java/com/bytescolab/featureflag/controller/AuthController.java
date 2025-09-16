@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +28,7 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Registrar un nuevo usuario", description = "Registro de un usuario")
     public ResponseEntity<AuthRegisterResponseDTO> register(@Valid @RequestBody RegisterRequestDTO dto) {
-        return ResponseEntity.ok(auth.register(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(auth.register(dto));
     }
 
     @PostMapping("/login")

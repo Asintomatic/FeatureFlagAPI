@@ -32,26 +32,12 @@ public class GlobalExceptionHandler {
         if (code.startsWith("AUTH_")) {
             return HttpStatus.UNAUTHORIZED;
         }
-        return HttpStatus.BAD_REQUEST;  // Default
+        return HttpStatus.BAD_REQUEST;
     }
 
     private String getErrorName(HttpStatus status) {
         return status.getReasonPhrase();
     }
-
-//    @ExceptionHandler(TokenExpiradoException.class)
-//    public ResponseEntity<Object> handleTokenExpirado(TokenExpiradoException ex){
-//        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
-//    }
-//
-//    @ExceptionHandler(TokenInvalidoException.class)
-//    public ResponseEntity<Object> handleTokenInvalido(TokenInvalidoException ex){
-//        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
-//    }
-//    @ExceptionHandler(TokenMalFormadoException.class)
-//    public ResponseEntity<Object> handleTokenMalformado(TokenExpiradoException ex){
-//        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
-//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex){
@@ -68,11 +54,6 @@ public class GlobalExceptionHandler {
         body.put("errors", fields);
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
-
-//    @ExceptionHandler(BadCredentialsException.class)
-//    public ResponseEntity<Object> handleBadCreds(BadCredentialsException ex){
-//        return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid username or password");
-//    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArg(IllegalArgumentException ex) {
@@ -94,18 +75,4 @@ public class GlobalExceptionHandler {
         body.put("path", request.getDescription(false));
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-//    private ResponseEntity<Object> buildResponse (HttpStatus status, String message){
-//        return new ResponseEntity<>(base(status, message), status);
-//    }
-//
-//    private Map<String,Object> base(HttpStatus status, String message){
-//        Map<String,Object> body = new HashMap<>();
-//        body.put("timestamp", LocalDateTime.now());
-//        body.put("status", status.value());
-//        body.put("error", status.getReasonPhrase());
-//        body.put("message", message);
-//        return body;
-//    }
-
 }
