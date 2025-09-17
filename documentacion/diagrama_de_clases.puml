@@ -1,0 +1,50 @@
+@startuml
+' Estilo visual
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+    AttributeIconSize 0
+}
+
+package "model" {
+    class Feature {
+        - UUID id
+        - String name
+        - String description
+        - Boolean enabledByDefault
+        - List<FeatureConfig> configs
+    }
+
+    class FeatureConfig {
+        - UUID id
+        - Environment environment
+        - String clientId
+        - Boolean enabled
+        - Feature feature
+    }
+
+    enum Environment {
+        DEV
+        PRE
+        PROD
+    }
+
+    class User {
+        - UUID id
+        - String username
+        - String password
+        - Role role
+    }
+
+     enum Role {
+        ADMIN
+        USER
+        VISITOR
+    }
+}
+
+Feature "1" *-- "0..*" FeatureConfig : configs
+FeatureConfig --> Environment
+User --> Role
+@enduml

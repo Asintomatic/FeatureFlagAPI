@@ -1,0 +1,1488 @@
+{
+	"info": {
+		"_postman_id": "b087f9e6-9fd5-410d-8e4e-becdc30146e8",
+		"name": "FeatureFlagAPI - Test_Collection_1.1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48306348"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Se hace registro válido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let json = pm.response.json();\r",
+									"\r",
+									"if (json && json.username) {\r",
+									"    pm.collectionVariables.set(\"username_user\", json.username);\r",
+									"    \r",
+									"} else {\r",
+									"    console.warn(\"No se encontró username_user en la respuesta:\", json);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Prueba\",\r\n     \"password\": \"Prueba1!\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Se hace registro válido ADMIN",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"ADMIN\",\r\n     \"password\": \"Admin1234_\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Se hace registro de usuario duplicado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Prueba\",\r\n     \"password\": \"Prueba1!\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Se hace registro con campos vacios",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"\",\r\n     \"password\": \"\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login correcto",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let json = pm.response.json();\r",
+									"\r",
+									"if (json && json.accessToken) {\r",
+									"    pm.collectionVariables.set(\"jwt_token\", json.accessToken);\r",
+									"    console.log(\"Token guardado:\", json.accessToken);\r",
+									"} else {\r",
+									"    console.warn(\"No se encontró accessToken en la respuesta:\", json);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Prueba\",\r\n     \"password\": \"Prueba1!\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login correcto ADMIN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let json = pm.response.json();\r",
+									"\r",
+									"if (json && json.accessToken) {\r",
+									"    pm.collectionVariables.set(\"jwt_token_admin\", json.accessToken);\r",
+									"    pm.collectionVariables.set(\"username\", json.username);\r",
+									"    console.log(\"Token ADMIN guardado:\", json.accessToken);\r",
+									"} else {\r",
+									"    console.warn(\"No se encontró accessToken en la respuesta:\", json);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"ADMIN\",\r\n     \"password\": \"Admin1234_\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login password incorrecta",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Prueba\", \r\n    \"password\": \"Fallido!\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login usuario no registrado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"PruebaFallida\", \r\n    \"password\": \"Prueba1!\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Admin cambia a rol ADMIN a otro usuario",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"{{username_user}}\" , \r\n    \"role\": \"ADMIN\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/{id}/role",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{id}",
+								"role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin cambia a rol USER a otro usuario",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"{{id_user_user}}\", \r\n    \"role\": \"USER\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/{id}/role",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{id}",
+								"role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuario no Admin, intenta cambiar rol",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"3979f9ca-9fde-4f6b-8751-c48f06bf6bbf\", \r\n    \"role\": \"ADMIN\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/users/{id}/role",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{id}",
+								"role"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Crear_feature",
+			"item": [
+				{
+					"name": "Crear Feature - rol ADMIN - sin config",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let json = pm.response.json();\r",
+									"\r",
+									"if (json && json.id) {\r",
+									"    pm.collectionVariables.set(\"id_feature\", json.id);\r",
+									"    console.log(\"id_feature guardado:\", json.id);\r",
+									"} else {\r",
+									"    console.warn(\"No se encontró id en la respuesta:\", json);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Feature - rol USER- sin config",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Feature - rol ADMIN - con configs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true,\n  \"configs\": [\n    {\n      \"environment\": \"DEV\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": true\n    },\n    {\n      \"environment\": \"STAGING\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Feature - rol USER- con configs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true,\n  \"configs\": [\n    {\n      \"environment\": \"DEV\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": true\n    },\n    {\n      \"environment\": \"STAGING\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Feature - rol ADMIN - Campos obligatorios vacíos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"\",\n  \"description\": \"\",\n  \"enabledByDefault\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Feature - rol ADMIN - Sin enabledByDefault",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"beta_access\",\n  \"description\": \"Acceso a la beta\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Feature - rol ADMIN - Environment inválido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true,\n  \"configs\": [\n    {\n      \"environment\": \"TEST\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": true\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Listar_features",
+			"item": [
+				{
+					"name": "Usuario logueado y autenticado lista features",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();\r",
+									"\r",
+									"if (Array.isArray(jsonData) && jsonData.length > 0) {\r",
+									"    pm.collectionVariables.set(\"id_feature\", jsonData[0].id);\r",
+									"    console.log(\"id_feature guardado:\", jsonData[0].id);\r",
+									"} else {\r",
+									"    console.warn(\"La respuesta no es un array válido o está vacío.\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sin token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Listar_feature_id",
+			"item": [
+				{
+					"name": "Usuario logueado y autenticado lista feature con ID válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "",
+								"value": "{id_feature}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sin token con ID válido",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuario logueado y autenticado lista feature con ID  NO válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features/a13066d3-d353-462a-a863-7d8512565f93",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"a13066d3-d353-462a-a863-7d8512565f93"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Activar_feature",
+			"item": [
+				{
+					"name": "Usuario logueado y autenticado con rol ADMIN activa feature con ID válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}/enable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}",
+								"enable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuario logueado y autenticado con rol ADMIN  activa feature con ID  NO válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/a13066d3-d353-462a-a863-7d8512565f93/enable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"a13066d3-d353-462a-a863-7d8512565f93",
+								"enable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuario logueado y autenticado con rol USER activa feature con ID válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}/enable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}",
+								"enable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sin token, activa feature con ID válido",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}/enable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}",
+								"enable"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Desactiva_feature",
+			"item": [
+				{
+					"name": "Usuario logueado y autenticado con rol ADMIN desactiva feature con ID válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}/disable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}",
+								"disable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuario logueado y autenticado con rol ADMIN  desactiva feature con ID  NO válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/a13066d3-d353-462a-a863-7d8512565f93/disable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"a13066d3-d353-462a-a863-7d8512565f93",
+								"disable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuario logueado y autenticado con rol USER desactiva feature con ID válido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}/disable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}",
+								"disable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sin token, desactiva feature con ID válido",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"environment\":\"PROD\",\r\n    \"clientId\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/features/{{id_feature}}/disable",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"{{id_feature}}",
+								"disable"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Check_feature",
+			"item": [
+				{
+					"name": "Usuario logueado y autenticado con rol ADMIN comprobar feature con id, clientId y env",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features/check?featureId={{id_feature}}&clientId=1&env=PROD",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"check"
+							],
+							"query": [
+								{
+									"key": "featureId",
+									"value": "{{id_feature}}"
+								},
+								{
+									"key": "clientId",
+									"value": "1"
+								},
+								{
+									"key": "env",
+									"value": "PROD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuario logueado y autenticado con rol USER comprobar feature con id, clientId y env",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features/check?featureId={{id_feature}}&clientId=1&env=PROD",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"check"
+							],
+							"query": [
+								{
+									"key": "featureId",
+									"value": "{{id_feature}}"
+								},
+								{
+									"key": "clientId",
+									"value": "1"
+								},
+								{
+									"key": "env",
+									"value": "PROD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sin token, desactiva feature con ID válido",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/features/check?featureId={{id_feature}}&clientId=1&env=PROD",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"features",
+								"check"
+							],
+							"query": [
+								{
+									"key": "featureId",
+									"value": "{{id_feature}}"
+								},
+								{
+									"key": "clientId",
+									"value": "1"
+								},
+								{
+									"key": "env",
+									"value": "PROD"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": ""
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "id_feature",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token_admin",
+			"value": ""
+		},
+		{
+			"key": "username",
+			"value": ""
+		},
+		{
+			"key": "id_user_user",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "username_user",
+			"value": ""
+		}
+	]
+}
