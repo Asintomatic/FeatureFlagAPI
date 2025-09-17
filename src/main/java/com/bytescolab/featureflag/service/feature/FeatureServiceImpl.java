@@ -91,12 +91,13 @@ public class FeatureServiceImpl implements FeatureService {
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
                 .orElse(null);
 
-        if(dto.getEnabled().equals(false)){
+        if (Boolean.FALSE.equals(dto.getEnabled()) || dto.getEnabled() == null) {
             throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
         }
 
         if (config == null) {
             config = FeatureMapper.toConfigEntity(dto, feature);
+            config.setEnabled(true);
             log.info("Creando nueva configuración para feature '{}'", feature.getName());
         } else {
             config.setEnabled(true);

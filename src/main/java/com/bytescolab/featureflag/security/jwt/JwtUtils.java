@@ -15,7 +15,34 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
+/**
+ * Utilidad para la gestión de tokens JWT (JSON Web Tokens).
+ * <p>
+ * Esta clase centraliza la generación, validación y extracción de información
+ * de los tokens JWT utilizados para la autenticación en la aplicación.
+ * </p>
+ *
+ * <h2>Responsabilidades principales:</h2>
+ * <ul>
+ *   <li>Generar tokens JWT con información de usuario y roles.</li>
+ *   <li>Extraer el nombre de usuario (subject) de un token.</li>
+ *   <li>Validar que un token sea auténtico y no haya expirado.</li>
+ *   <li>Obtener la fecha de expiración de un token en milisegundos.</li>
+ *   <li>Mapear errores comunes de JWT a {@link ApiException} con códigos definidos en {@link ErrorCodes}.</li>
+ * </ul>
+ *
+ * <h2>Excepciones lanzadas:</h2>
+ * <ul>
+ *   <li>{@link ApiException} con código {@code AUTH_001} si el token ha expirado.</li>
+ *   <li>{@link ApiException} con código {@code AUTH_002} si el token está mal formado o es incompatible.</li>
+ *   <li>{@link ApiException} con código {@code AUTH_003} si el token es inválido por otros motivos.</li>
+ * </ul>
+ *
+ * @author Bytes
+ * @see io.jsonwebtoken.Jwts
+ * @see ApiException
+ * @see ErrorCodes
+ */
 @Component
 public class JwtUtils {
 
