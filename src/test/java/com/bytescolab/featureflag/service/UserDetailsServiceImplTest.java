@@ -3,7 +3,7 @@ package com.bytescolab.featureflag.service;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
 import com.bytescolab.featureflag.repository.UserRepository;
-import com.bytescolab.featureflag.security.auth.CustomUserDetails;
+import com.bytescolab.featureflag.config.security.auth.CustomUserDetails;
 import com.bytescolab.featureflag.service.user.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

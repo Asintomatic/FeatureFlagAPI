@@ -1,6 +1,6 @@
 package com.bytescolab.featureflag.security;
 
-import com.bytescolab.featureflag.security.jwt.JwtUtils;
+import com.bytescolab.featureflag.config.security.jwt.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;

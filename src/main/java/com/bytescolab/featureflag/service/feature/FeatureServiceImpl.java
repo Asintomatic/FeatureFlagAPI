@@ -39,6 +39,7 @@ public class FeatureServiceImpl implements FeatureService {
 
         Feature entity = FeatureMapper.toEntity(dto);
         Feature saved = featureRepository.save(entity);
+        log.info("Feature {} creada con éxito.", entity.getName());
 
         return FeatureMapper.toDetailResponseDTO(saved);
     }
@@ -83,6 +84,8 @@ public class FeatureServiceImpl implements FeatureService {
 
         config.setEnabled(true);
         featureConfigRepository.save(config);
+        log.info("Feature '{}' activada correctamente para clientId: '{}' y env: '{}'",
+                feature.getName(), dto.getClientId(), dto.getEnvironment());
 
         return String.format("Feature '%s' activada correctamente para clientId=%s y env=%s",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
@@ -101,6 +104,8 @@ public class FeatureServiceImpl implements FeatureService {
 
         config.setEnabled(false);
         featureConfigRepository.save(config);
+        log.info("Feature '{}' desactivada correctamente para clientId: '{}' y env: '{}'",
+                feature.getName(), dto.getClientId(), dto.getEnvironment());
 
         return String.format("Feature '%s' desactivada correctamente para clientId=%s y env=%s",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());

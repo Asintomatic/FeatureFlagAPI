@@ -4,12 +4,11 @@ import com.bytescolab.featureflag.exception.ApiException;
 import com.bytescolab.featureflag.exception.ErrorCodes;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.repository.UserRepository;
-import com.bytescolab.featureflag.security.auth.CustomUserDetails;
+import com.bytescolab.featureflag.config.security.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.security.core.userdetails.UserDetailsService; // <-- este import
+import org.springframework.security.core.userdetails.UserDetailsService; 
 
 @Service
 @RequiredArgsConstructor

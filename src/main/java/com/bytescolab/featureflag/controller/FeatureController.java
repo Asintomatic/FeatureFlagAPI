@@ -1,9 +1,9 @@
 package com.bytescolab.featureflag.controller;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.service.feature.FeatureService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,10 +49,10 @@ import java.util.UUID;
  *
  * @author Bytes
  * @see com.bytescolab.featureflag.service.feature.FeatureService
- * @see com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO
- * @see com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO
- * @see com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO
- * @see com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO
+ * @see FeatureCreateRequestDTO
+ * @see FeatureActivationRequestDTO
+ * @see FeatureDetailResponseDTO
+ * @see FeatureSummaryResponseDTO
  */
 @RestController
 @RequestMapping("/api/features")

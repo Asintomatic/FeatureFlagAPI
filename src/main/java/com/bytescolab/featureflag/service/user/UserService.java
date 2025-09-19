@@ -12,27 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Slf4j
 @Service
-public class UserService {
+public interface UserService {
 
-    private final UserRepository userRepository;
-
-    public UserService ( UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
 
     @Transactional
-    public String updateUserRole(String name, String newRole) {
-        User user = userRepository.findByUsername(name)
-                .orElseThrow(() -> new ApiException(ErrorCodes.USER_NOT_FOUND, ErrorCodes.USER_NOT_FOUND_MSG));
-
-        Role role = Role.valueOf(newRole.toUpperCase());
-        user.setRole(role);
-        userRepository.save(user);
-
-        String msg = String.format("Usuario %s actualizado correctamente con rol: %s", name, role.name());
-        log.info("Usuario {} actualizado correctamente con rol: {}", name, role.name());
-        return msg;
-    }
+    public String updateUserRole(String name, String newRole);
 }

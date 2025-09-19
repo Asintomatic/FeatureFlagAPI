@@ -1,10 +1,12 @@
 package com.bytescolab.featureflag.controller;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureConfigCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.config.security.config.SecurityConfig;
+import com.bytescolab.featureflag.config.security.jwt.JwtFilter;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureConfigCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.service.feature.FeatureService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,8 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
                 classes = {
-                        com.bytescolab.featureflag.security.config.SecurityConfig.class,
-                        com.bytescolab.featureflag.security.jwt.JwtFilter.class
+                        SecurityConfig.class,
+                        JwtFilter.class
                 }
         )
 )
