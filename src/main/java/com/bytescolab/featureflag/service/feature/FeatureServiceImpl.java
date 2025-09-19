@@ -8,7 +8,9 @@ import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.repository.FeatureConfigRepository;
 import com.bytescolab.featureflag.repository.FeatureRepository;
 import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureConfigCreateRequestDTO;
 import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureConfigResponseDTO;
 import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
 import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.repository.mapper.FeatureMapper;
@@ -51,6 +53,35 @@ public class FeatureServiceImpl implements FeatureService {
 
         return FeatureMapper.toDetailResponseDTO(saved);
     }
+
+    @Override
+    public FeatureConfigResponseDTO createConfigFeature(UUID id, FeatureConfigCreateRequestDTO dto) {
+
+        Feature feature = getFeatureOrThrow(id);
+        boolean exists = featureConfigRepository
+                .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
+                .isPresent();
+
+        if (exists) {
+            throw new ApiException(ErrorCodes.FEATURE_EXISTS_CONFIG,ErrorCodes.FEATURE_EXISTS_CONFIG_MSG);
+        }
+
+        FeatureConfig config = FeatureConfig.builder()
+                .feature(feature)
+                .environment(dto.getEnvironment())
+                .clientId(dto.getClientId())
+                .enabled(dto.getEnabled())
+                .build();
+
+        FeatureConfig saved = featureConfigRepository.save(config);
+
+        return FeatureConfigResponseDTO.builder()
+                .environment(saved.getEnvironment())
+                .clientId(saved.getClientId())
+                .enabled(saved.isEnabled())
+                .build();
+    }
+
 
     @Override
     public List<FeatureSummaryResponseDTO> getAllFeatures(Boolean enabled, String name) {
