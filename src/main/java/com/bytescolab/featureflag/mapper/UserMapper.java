@@ -3,6 +3,8 @@ package com.bytescolab.featureflag.mapper;
 
 import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
 import com.bytescolab.featureflag.dto.auth.request.UserRoleUpdateRequestDTO;
+import com.bytescolab.featureflag.exception.ApiException;
+import com.bytescolab.featureflag.exception.ErrorCodes;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
 /**
@@ -31,7 +33,7 @@ public class UserMapper {
      * Lanza una excepción si se intenta instanciar.
      */
     private UserMapper() {
-        throw new UnsupportedOperationException("Utility class");
+        throw new ApiException(ErrorCodes.BAD_REQUEST,ErrorCodes.BAD_REQUEST_MSG);
     }
 
     /**

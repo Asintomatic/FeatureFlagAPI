@@ -5,6 +5,7 @@ import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
 import com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO;
 import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
 import com.bytescolab.featureflag.exception.ApiException;
+import com.bytescolab.featureflag.exception.ErrorCodes;
 import com.bytescolab.featureflag.mapper.UserMapper;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
@@ -12,6 +13,7 @@ import com.bytescolab.featureflag.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,24 +60,29 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO login(LoginRequestDTO dto) {
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
-        );
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword())
+            );
 
-        UserDetails principal = (UserDetails) auth.getPrincipal();
-        String role = principal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
+            UserDetails principal = (UserDetails) auth.getPrincipal();
+            String role = principal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
-        String token = jwtUtils.generateToken(principal);
-        long expMillis = jwtUtils.extractExpirationMillis(token);
+            String token = jwtUtils.generateToken(principal);
+            long expMillis = jwtUtils.extractExpirationMillis(token);
 
-        log.info("Usuario: {} logueado con Bearer: {}", dto.getUsername(), token);
+            log.info("Usuario: {} logueado con Bearer: {}", dto.getUsername(), token);
 
-        return AuthResponseDTO.builder()
-                .accessToken(token)
-                .expiresAt(expMillis)
-                .tokenType("Bearer")
-                .username(principal.getUsername())
-                .role(role)
-                .build();
+            return AuthResponseDTO.builder()
+                    .accessToken(token)
+                    .expiresAt(expMillis)
+                    .tokenType("Bearer")
+                    .username(principal.getUsername())
+                    .role(role)
+                    .build();
+        } catch (BadCredentialsException ex) {
+            log.warn("Intento de login fallido para usuario: {}", dto.getUsername());
+            throw new ApiException(ErrorCodes.INVALID_CREDENTIALS, ErrorCodes.INVALID_CREDENTIALS_MSG);
+        }
     }
 }

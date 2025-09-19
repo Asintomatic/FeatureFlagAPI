@@ -1,7 +1,7 @@
 package com.bytescolab.featureflag.service.feature;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
 import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.exception.ApiException;
@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -35,7 +34,7 @@ public class FeatureServiceImpl implements FeatureService {
     @Override
     public FeatureDetailResponseDTO createFeature(FeatureCreateRequestDTO dto) {
         if (featureRepository.existsByName(dto.getName())) {
-            throw new IllegalArgumentException("Feature ya existe");
+            throw new ApiException(ErrorCodes.FEATURE_EXISTS, ErrorCodes.FEATURE_EXISTS_MSG);
         }
 
         Feature entity = FeatureMapper.toEntity(dto);
@@ -46,64 +45,43 @@ public class FeatureServiceImpl implements FeatureService {
 
     @Override
     public List<FeatureSummaryResponseDTO> getAllFeatures(Boolean enabled, String name) {
-        List<Feature> features;
-        boolean feature;
-
         if (enabled != null && name != null) {
-            feature = featureRepository.existsByName(name);
-            if(feature){
-                features = featureRepository.findByEnabledByDefaultAndNameContainingIgnoreCase(enabled, name);
-            }else {
-                throw new IllegalArgumentException(" No hay ninguna feature con ese nombre");
-            }
-        } else if (name != null) {
-            feature = featureRepository.existsByName(name);
-            if(feature){
-                features = featureRepository.findByNameContainingIgnoreCase(name);
-            }else {
-                throw new IllegalArgumentException(" No hay ninguna feature con ese nombre");
-            }
-        } else if (enabled != null) {
-            features = featureRepository.findByEnabledByDefault(enabled);
-        } else {
-            features = featureRepository.findAll();
+            validateFeatureExists(name);
+            return featureRepository.findByEnabledByDefaultAndNameContainingIgnoreCase(enabled, name)
+                    .stream().map(FeatureMapper::toSummaryDTO).toList();
         }
-
-        return features.stream()
-                .map(FeatureMapper::toSummaryDTO)
-                .toList();
+        if (name != null) {
+            validateFeatureExists(name);
+            return featureRepository.findByNameContainingIgnoreCase(name)
+                    .stream().map(FeatureMapper::toSummaryDTO).toList();
+        }
+        if (enabled != null) {
+            return featureRepository.findByEnabledByDefault(enabled)
+                    .stream().map(FeatureMapper::toSummaryDTO).toList();
+        }
+        return featureRepository.findAll().stream()
+                .map(FeatureMapper::toSummaryDTO).toList();
     }
 
     @Override
     public FeatureDetailResponseDTO getFeatureById(UUID id) {
         Feature feature = featureRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
-
         return FeatureMapper.toDetailResponseDTO(feature);
     }
 
     @Override
     public String enableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
-        Feature feature = featureRepository.findById(featureId)
-                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
+        if (Boolean.FALSE.equals(dto.getEnabled())) {
+            throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        }
+        Feature feature = getFeatureOrThrow(featureId);
 
         FeatureConfig config = featureConfigRepository
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
-                .orElse(null);
+                .orElse(FeatureMapper.toConfigEntity(dto, feature));
 
-        if (Boolean.FALSE.equals(dto.getEnabled()) || dto.getEnabled() == null) {
-            throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
-        }
-
-        if (config == null) {
-            config = FeatureMapper.toConfigEntity(dto, feature);
-            config.setEnabled(true);
-            log.info("Creando nueva configuración para feature '{}'", feature.getName());
-        } else {
-            config.setEnabled(true);
-            log.info("Actualizando configuración existente para feature '{}'", feature.getName());
-        }
-
+        config.setEnabled(true);
         featureConfigRepository.save(config);
 
         return String.format("Feature '%s' activada correctamente para clientId=%s y env=%s",
@@ -112,15 +90,15 @@ public class FeatureServiceImpl implements FeatureService {
 
     @Override
     public String disableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
-        Feature feature = featureRepository.findById(featureId)
-                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
+        if (Boolean.TRUE.equals(dto.getEnabled())) {
+            throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        }
+        Feature feature = getFeatureOrThrow(featureId);
 
         FeatureConfig config = featureConfigRepository
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
-                .orElseThrow(() -> new RuntimeException("No existe asignación para deshabilitar"));
-        if(dto.getEnabled().equals(true)){
-           throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
-        }
+                .orElseThrow(() -> new ApiException(ErrorCodes.BAD_PARAMS, "No existe configuración para deshabilitar"));
+
         config.setEnabled(false);
         featureConfigRepository.save(config);
 
@@ -130,26 +108,23 @@ public class FeatureServiceImpl implements FeatureService {
 
     @Override
     public boolean isFeatureActived(UUID featureId, String clientId, Environment environment) {
-        log.info("Buscando feature con ID: {}", featureId);
-        Optional<Feature> featureOpt = featureRepository.findById(featureId);
+        Feature feature = getFeatureOrThrow(featureId);
 
-        if (featureOpt.isEmpty()) {
-            log.warn("Feature con ID {} no encontrada", featureId);
-            return false;
+        return featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, environment, clientId)
+                .map(FeatureConfig::isEnabled)
+                .or(() -> featureConfigRepository.findByFeatureIdAndEnvironmentAndClientIdIsNull(feature.getId(), environment)
+                        .map(FeatureConfig::isEnabled))
+                .orElse(feature.isEnabledByDefault());
+    }
+
+    private void validateFeatureExists(String name) {
+        if (!featureRepository.existsByName(name)) {
+            throw new ApiException(ErrorCodes.FEATURE_NOT_FOUND, "No hay ninguna feature con ese nombre");
         }
+    }
 
-        Feature feature = featureOpt.get();
-
-        Optional<FeatureConfig> configByClient = featureConfigRepository
-                .findByFeatureAndEnvironmentAndClientId(feature, environment, clientId);
-
-        if (configByClient.isPresent()) {
-            return configByClient.get().isEnabled();
-        }
-
-        Optional<FeatureConfig> configByEnv = featureConfigRepository
-                .findByFeatureIdAndEnvironmentAndClientIdIsNull(feature.getId(), environment);
-
-        return configByEnv.map(FeatureConfig::isEnabled).orElseGet(feature::isEnabledByDefault);
+    private Feature getFeatureOrThrow(UUID featureId) {
+        return featureRepository.findById(featureId)
+                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
     }
 }

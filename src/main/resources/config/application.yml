@@ -3,6 +3,8 @@ spring:
     import: optional:file:.env.[properties]
   application:
     name: "featureflag"
+  profiles:
+    active: dev
 
   datasource:
     url: ${DB_URL}

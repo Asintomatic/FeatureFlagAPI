@@ -84,6 +84,11 @@ public final class ErrorCodes {
     /** Mensaje descriptivo para {@link #BAD_PARAMS}. */
     public static final String BAD_PARAMS_MSG = "Parámetros no aceptados";
 
+    /** Código de error cuando los parámetros recibidos no son aceptados. */
+    public static final String BAD_REQUEST = "PARAMS_002";
+    /** Mensaje descriptivo para {@link #BAD_REQUEST}. */
+    public static final String BAD_REQUEST_MSG = "Parámetros no aceptados";
+
     /**
      * Constructor privado para evitar la instanciación de esta clase de utilidades.
      */

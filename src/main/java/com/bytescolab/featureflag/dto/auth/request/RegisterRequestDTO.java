@@ -33,6 +33,7 @@ public class RegisterRequestDTO {
      * </p>
      */
     @NotBlank(message = "El username es obligatorio")
+    @Size(min = 4, max = 20, message = "El nombre de usuario debe tener entre 4 y 20 caracteres")
     @Schema(example = "Prueba", description = "Nombre del usuario")
     private String username;
 

@@ -6,6 +6,8 @@ import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureConfigResponseDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
 import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.exception.ApiException;
+import com.bytescolab.featureflag.exception.ErrorCodes;
 import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
 
@@ -24,7 +26,7 @@ public class FeatureMapper {
      * Private constructor to prevent instantiation of this utility class.
      */
     private FeatureMapper() {
-        throw new UnsupportedOperationException("Utility class");
+        throw new ApiException(ErrorCodes.BAD_REQUEST,ErrorCodes.BAD_REQUEST_MSG);
     }
 
     /**
