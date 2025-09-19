@@ -61,6 +61,16 @@ public final class ErrorCodes {
     /** Mensaje descriptivo para {@link #FEATURE_EXISTS}. */
     public static final String FEATURE_EXISTS_MSG = "La feature ya existe";
 
+    /** Código de error cuando ya está activada la feature. */
+    public static final String FEATURE_ENABLE = "FF_003";
+    /** Mensaje descriptivo para {@link #FEATURE_ENABLE}. */
+    public static final String FEATURE_ENABLE_MSG = "La feature ya está activada en ese entorno/cliente";
+
+    /** Código de error cuando ya está desactivada la feature. */
+    public static final String FEATURE_DISABLE = "FF_004";
+    /** Mensaje descriptivo para {@link #FEATURE_DISABLE}. */
+    public static final String FEATURE_DISABLE_MSG = "La feature ya está desactivada en ese entorno/cliente";
+
     // ======================
     // User errors
     // ======================

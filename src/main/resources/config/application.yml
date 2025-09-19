@@ -33,8 +33,8 @@ logging:
   level:
     root: INFO
     org.springframework: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.bytescolab.featureflag: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+    FeatureAudit: INFO
+  config: classpath:logback-spring.xml
+
+

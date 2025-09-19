@@ -1,17 +1,19 @@
 package com.bytescolab.featureflag.service.feature;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.exception.ApiException;
 import com.bytescolab.featureflag.exception.ErrorCodes;
-import com.bytescolab.featureflag.mapper.FeatureMapper;
 import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.repository.FeatureConfigRepository;
 import com.bytescolab.featureflag.repository.FeatureRepository;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.repository.mapper.FeatureMapper;
+import com.bytescolab.featureflag.config.security.SecurityUtils;
+import com.bytescolab.featureflag.utils.logging.FeatureAuditLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +26,14 @@ public class FeatureServiceImpl implements FeatureService {
 
     private final FeatureRepository featureRepository;
     private final FeatureConfigRepository featureConfigRepository;
+    private final FeatureAuditLogger featureAuditLogger;
+
 
     public FeatureServiceImpl(FeatureRepository featureRepository,
-                              FeatureConfigRepository featureConfigRepository) {
+                              FeatureConfigRepository featureConfigRepository, FeatureAuditLogger featureAuditLogger) {
         this.featureRepository = featureRepository;
         this.featureConfigRepository = featureConfigRepository;
+        this.featureAuditLogger = featureAuditLogger;
     }
 
     @Override
@@ -39,6 +44,9 @@ public class FeatureServiceImpl implements FeatureService {
 
         Feature entity = FeatureMapper.toEntity(dto);
         Feature saved = featureRepository.save(entity);
+        String currentUser = SecurityUtils.getCurrentUser();
+
+        featureAuditLogger.logCreation(dto.getName(), currentUser);
         log.info("Feature {} creada con éxito.", entity.getName());
 
         return FeatureMapper.toDetailResponseDTO(saved);
@@ -73,6 +81,10 @@ public class FeatureServiceImpl implements FeatureService {
 
     @Override
     public String enableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
+        boolean isActivated = isFeatureActived(featureId, dto.getClientId(), dto.getEnvironment());
+        if (isActivated) {
+            throw new ApiException(ErrorCodes.FEATURE_ENABLE, ErrorCodes.FEATURE_ENABLE_MSG);
+        }
         if (Boolean.FALSE.equals(dto.getEnabled())) {
             throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
         }
@@ -82,17 +94,24 @@ public class FeatureServiceImpl implements FeatureService {
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
                 .orElse(FeatureMapper.toConfigEntity(dto, feature));
 
+        String currentUser = SecurityUtils.getCurrentUser();
         config.setEnabled(true);
         featureConfigRepository.save(config);
+
+        featureAuditLogger.logActivation(feature.getName(), dto.getEnvironment().toString(), dto.getClientId(), currentUser);;
         log.info("Feature '{}' activada correctamente para clientId: '{}' y env: '{}'",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
 
-        return String.format("Feature '%s' activada correctamente para clientId=%s y env=%s",
+        return String.format("Feature '%s' activada correctamente para clientId= %s y env= %s",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
     }
 
     @Override
     public String disableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
+        boolean isActivated = isFeatureActived(featureId, dto.getClientId(), dto.getEnvironment());
+        if (!isActivated) {
+            throw new ApiException(ErrorCodes.FEATURE_DISABLE, ErrorCodes.FEATURE_DISABLE_MSG);
+        }
         if (Boolean.TRUE.equals(dto.getEnabled())) {
             throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
         }
@@ -102,12 +121,15 @@ public class FeatureServiceImpl implements FeatureService {
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
                 .orElseThrow(() -> new ApiException(ErrorCodes.BAD_PARAMS, "No existe configuración para deshabilitar"));
 
+        String currentUser = SecurityUtils.getCurrentUser();
         config.setEnabled(false);
         featureConfigRepository.save(config);
+
+        featureAuditLogger.logDesactivation(feature.getName(), dto.getEnvironment().toString(), dto.getClientId(), currentUser);
         log.info("Feature '{}' desactivada correctamente para clientId: '{}' y env: '{}'",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
 
-        return String.format("Feature '%s' desactivada correctamente para clientId=%s y env=%s",
+        return String.format("Feature '%s' desactivada correctamente para clientId= %s y env= %s",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
     }
 
