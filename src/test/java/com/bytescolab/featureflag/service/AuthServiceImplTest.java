@@ -1,13 +1,13 @@
 package com.bytescolab.featureflag.service;
 
-import com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO;
-import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
-import com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO;
-import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
+import com.bytescolab.featureflag.config.security.jwt.JwtUtils;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
 import com.bytescolab.featureflag.repository.UserRepository;
-import com.bytescolab.featureflag.security.jwt.JwtUtils;
+import com.bytescolab.featureflag.repository.dto.auth.request.LoginRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.request.RegisterRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.response.AuthRegisterResponseDTO;
+import com.bytescolab.featureflag.repository.dto.auth.response.AuthResponseDTO;
 import com.bytescolab.featureflag.service.auth.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

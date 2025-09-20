@@ -1,4 +1,4 @@
-package com.bytescolab.featureflag.security.jwt;
+package com.bytescolab.featureflag.security;
 
 import com.bytescolab.featureflag.config.security.jwt.JwtFilter;
 import com.bytescolab.featureflag.config.security.jwt.JwtUtils;
@@ -21,12 +21,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class JwtFilterTest {
 
@@ -57,7 +53,7 @@ class JwtFilterTest {
     void doFilter_skipsAuthEndpoints() throws ServletException, IOException {
         request.setRequestURI("/api/auth/login");
 
-        jwtFilter.doFilterInternal(request, response, filterChain);
+        jwtFilter.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -67,7 +63,7 @@ class JwtFilterTest {
     void doFilter_noAuthorizationHeader() throws ServletException, IOException {
         request.setRequestURI("/api/feature");
 
-        jwtFilter.doFilterInternal(request, response, filterChain);
+        jwtFilter.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -84,7 +80,7 @@ class JwtFilterTest {
         when(userDetailsService.loadUserByUsername("pepe")).thenReturn(userDetails);
         when(jwtUtils.isTokenValid("valid-token", userDetails)).thenReturn(true);
 
-        jwtFilter.doFilterInternal(request, response, filterChain);
+        jwtFilter.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
 
@@ -104,7 +100,7 @@ class JwtFilterTest {
         when(userDetailsService.loadUserByUsername("pepe")).thenReturn(userDetails);
         when(jwtUtils.isTokenValid("invalid-token", userDetails)).thenReturn(false);
 
-        jwtFilter.doFilterInternal(request, response, filterChain);
+        jwtFilter.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -119,7 +115,7 @@ class JwtFilterTest {
                 .thenThrow(new ApiException(ErrorCodes.TOKEN_EXPIRADO, "Token expirado"));
 
         ApiException thrown = assertThrows(ApiException.class, () ->
-                jwtFilter.doFilterInternal(request, response, filterChain)
+                jwtFilter.doFilter(request, response, filterChain)
         );
 
         assertEquals(ErrorCodes.TOKEN_EXPIRADO, thrown.getCode());

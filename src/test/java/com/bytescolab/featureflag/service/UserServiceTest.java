@@ -4,6 +4,7 @@ import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
 import com.bytescolab.featureflag.repository.UserRepository;
 import com.bytescolab.featureflag.service.user.UserService;
+import com.bytescolab.featureflag.service.user.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,13 +16,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class UserServiceTest {
+class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
-    private UserService service;
+    private UserServiceImpl service;
 
     @BeforeEach
     void setUp() {
