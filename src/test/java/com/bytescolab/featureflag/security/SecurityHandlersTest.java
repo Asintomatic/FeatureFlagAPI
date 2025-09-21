@@ -1,4 +1,4 @@
-package com.bytescolab.featureflag.security.handlers;
+package com.bytescolab.featureflag.security;
 
 import com.bytescolab.featureflag.config.security.handlers.RestAccessDeniedHandler;
 import com.bytescolab.featureflag.config.security.handlers.RestAuthenticationEntryPoint;

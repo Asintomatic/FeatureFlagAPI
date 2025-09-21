@@ -112,7 +112,6 @@ class FeatureMapperTest {
 
         FeatureConfigResponseDTO dto = FeatureMapper.toConfigDTO(cfg);
 
-        assertEquals(cfg.getId(), dto.getId());
         assertEquals(Environment.STAGING, dto.getEnvironment());
         assertEquals("clientC", dto.getClientId());
         assertTrue(dto.getEnabled());

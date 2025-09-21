@@ -102,6 +102,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex, WebRequest request) {
         log.error("Excepción inesperada capturada", ex);
+        if(ex.getMessage().contains("Access Denied")){
+            ApiException apiEx = new ApiException(ErrorCodes.INVALID_CREDENTIALS, ErrorCodes.INVALID_CREDENTIALS_MSG
+            );
+            return new ResponseEntity<>(
+                    buildResponse(HttpStatus.UNAUTHORIZED, apiEx, request.getDescription(false)),
+                    HttpStatus.UNAUTHORIZED);
+        }
         ApiException apiEx = new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
         return new ResponseEntity<>(
                 buildResponse(HttpStatus.BAD_REQUEST, apiEx, request.getDescription(false)),
@@ -110,11 +117,26 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus getStatusForCode(String code) {
-        if (code.startsWith("AUTH_")) return HttpStatus.UNAUTHORIZED;
-        if (code.equals(ErrorCodes.FEATURE_EXISTS)) return HttpStatus.CONFLICT;
-        if (code.startsWith("USER_")) return HttpStatus.BAD_REQUEST;
-        if (code.startsWith("FF_")) return HttpStatus.NOT_FOUND;
-        if (code.startsWith("PARAMS_")) return HttpStatus.BAD_REQUEST;
-        return HttpStatus.INTERNAL_SERVER_ERROR;
+        return CODE_TO_STATUS.getOrDefault(code, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    //Map de las excepciones y Status que lanzarán en la excepción.
+    private static final Map<String, HttpStatus> CODE_TO_STATUS = Map.ofEntries(
+            Map.entry(ErrorCodes.TOKEN_EXPIRADO, HttpStatus.UNAUTHORIZED),
+            Map.entry(ErrorCodes.TOKEN_MALFORMADO, HttpStatus.BAD_REQUEST),
+            Map.entry(ErrorCodes.TOKEN_INVALIDO, HttpStatus.UNAUTHORIZED),
+            Map.entry(ErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED),
+            Map.entry(ErrorCodes.FEATURE_NOT_FOUND, HttpStatus.NOT_FOUND),
+            Map.entry(ErrorCodes.FEATURE_EXISTS, HttpStatus.NOT_FOUND),
+            Map.entry(ErrorCodes.FEATURE_ENABLE, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.FEATURE_DISABLE, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.FEATURE_EXISTS_CONFIG, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.USER_NOT_FOUND, HttpStatus.NOT_FOUND),
+            Map.entry(ErrorCodes.USER_EXISTS, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.BAD_PARAMS, HttpStatus.BAD_REQUEST)
+
+            //Aquí se irán añadiendo excepciones para los casos que vayamos necesitando
+
+
+    );
 }

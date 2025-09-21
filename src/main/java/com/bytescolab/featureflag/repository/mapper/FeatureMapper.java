@@ -20,13 +20,13 @@ import java.util.List;
  * This class is stateless and contains only static methods.
  * It cannot be instantiated.
  */
-public class FeatureMapper {
+public final class FeatureMapper {
 
     /**
      * Private constructor to prevent instantiation of this utility class.
      */
     private FeatureMapper() {
-        throw new ApiException(ErrorCodes.BAD_REQUEST,ErrorCodes.BAD_REQUEST_MSG);
+        throw new ApiException(ErrorCodes.BAD_REQUEST, ErrorCodes.BAD_REQUEST_MSG);
     }
 
     /**
@@ -44,15 +44,14 @@ public class FeatureMapper {
                 .build();
 
         if (dto.getConfigs() != null) {
-            List<FeatureConfig> configs = dto.getConfigs().stream().map(feaConfigDto ->
-                    FeatureConfig.builder()
+            List<FeatureConfig> configs = dto.getConfigs().stream()
+                    .map(feaConfigDto -> FeatureConfig.builder()
                             .environment(feaConfigDto.getEnvironment())
                             .clientId(feaConfigDto.getClientId())
                             .enabled(feaConfigDto.getEnabled())
                             .feature(feature)
-                            .build()
-            ).toList();
-
+                            .build())
+                    .toList();
             feature.setConfigs(configs);
         }
 
@@ -72,9 +71,11 @@ public class FeatureMapper {
                 .name(feature.getName())
                 .description(feature.getDescription())
                 .enabledByDefault(feature.getEnabledByDefault())
-                .configs(feature.getConfigs() != null ? feature.getConfigs().stream()
+                .configs(feature.getConfigs() != null
+                        ? feature.getConfigs().stream()
                         .map(FeatureMapper::toConfigDTO)
-                        .toList() : null)
+                        .toList()
+                        : null)
                 .build();
     }
 
@@ -101,7 +102,6 @@ public class FeatureMapper {
      */
     public static FeatureConfigResponseDTO toConfigDTO(FeatureConfig config) {
         return FeatureConfigResponseDTO.builder()
-                .id(config.getId())
                 .environment(config.getEnvironment())
                 .clientId(config.getClientId())
                 .enabled(config.getEnabled())
@@ -141,3 +141,4 @@ public class FeatureMapper {
                 .build();
     }
 }
+

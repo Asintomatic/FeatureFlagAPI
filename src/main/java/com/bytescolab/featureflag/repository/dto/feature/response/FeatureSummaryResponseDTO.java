@@ -3,7 +3,9 @@ package com.bytescolab.featureflag.repository.dto.feature.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 /**
@@ -23,6 +25,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Setter
+@Getter
 public class FeatureSummaryResponseDTO {
 
     /**

@@ -10,6 +10,14 @@
 			"name": "Auth",
 			"item": [
 				{
+					"name": "Register",
+					"item": []
+				},
+				{
+					"name": "Login",
+					"item": []
+				},
+				{
 					"name": "Se hace registro válido",
 					"event": [
 						{
@@ -114,7 +122,7 @@
 					"response": []
 				},
 				{
-					"name": "Se hace registro con campos vacios",
+					"name": "Se hace registro con campo password vacio",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -125,7 +133,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"\",\r\n     \"password\": \"\"\r\n}"
+							"raw": "{\r\n    \"username\": \"123123\",\r\n     \"password\": \"\"\r\n}"
 						},
 						"url": {
 							"raw": "{{baseURL}}/api/auth/register",
@@ -204,7 +212,6 @@
 									"\r",
 									"if (json && json.accessToken) {\r",
 									"    pm.collectionVariables.set(\"jwt_token_admin\", json.accessToken);\r",
-									"    pm.collectionVariables.set(\"username\", json.username);\r",
 									"    console.log(\"Token ADMIN guardado:\", json.accessToken);\r",
 									"} else {\r",
 									"    console.warn(\"No se encontró accessToken en la respuesta:\", json);\r",
@@ -341,17 +348,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"{{username_user}}\" , \r\n    \"role\": \"ADMIN\"\r\n}"
+							"raw": "{\r\n    \"role\": \"ADMIN\"\r\n}"
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/users/{id}/role",
+							"raw": "{{baseURL}}/api/users/{{username_user}}/role",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"users",
-								"{id}",
+								"{{username_user}}",
 								"role"
 							]
 						}
@@ -384,17 +391,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"{{id_user_user}}\", \r\n    \"role\": \"USER\"\r\n}"
+							"raw": "{\r\n    \"role\": \"USER\"\r\n}"
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/users/{id}/role",
+							"raw": "{{baseURL}}/api/users/{{username_user}}/role",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"users",
-								"{id}",
+								"{{username_user}}",
 								"role"
 							]
 						}
@@ -430,14 +437,14 @@
 							"raw": "{\r\n    \"id\": \"3979f9ca-9fde-4f6b-8751-c48f06bf6bbf\", \r\n    \"role\": \"ADMIN\"\r\n}"
 						},
 						"url": {
-							"raw": "{{baseURL}}/api/users/{id}/role",
+							"raw": "{{baseURL}}/api/users/{{username_user}}/role",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"api",
 								"users",
-								"{id}",
+								"{{username_user}}",
 								"role"
 							]
 						}
@@ -450,7 +457,7 @@
 			"name": "Crear_feature",
 			"item": [
 				{
-					"name": "Crear Feature - rol ADMIN - sin config",
+					"name": "rol ADMIN con name, description, enabledByDefault y SIN config",
 					"event": [
 						{
 							"listen": "test",
@@ -538,7 +545,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true\n}"
+							"raw": "{\n  \"name\": \"dark_mode1\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true\n}"
 						},
 						"url": {
 							"raw": "{{baseURL}}/api/features",
@@ -580,49 +587,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true,\n  \"configs\": [\n    {\n      \"environment\": \"DEV\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": true\n    },\n    {\n      \"environment\": \"STAGING\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": false\n    }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/features",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"features"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Crear Feature - rol USER- con configs",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{jwt_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{jwtToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true,\n  \"configs\": [\n    {\n      \"environment\": \"DEV\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": true\n    },\n    {\n      \"environment\": \"STAGING\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": false\n    }\n  ]\n}"
+							"raw": "{\n  \"name\": \"dark_mode909\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true,\n  \"configs\": [\n    {\n      \"environment\": \"DEV\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": true\n    },\n    {\n      \"environment\": \"STAGING\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": false\n    }\n  ]\n}"
 						},
 						"url": {
 							"raw": "{{baseURL}}/api/features",
@@ -720,48 +685,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Crear Feature - rol ADMIN - Environment inválido",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{jwt_token_admin}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{jwtToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"dark_mode\",\n  \"description\": \"Modo oscuro para el frontend\",\n  \"enabledByDefault\": true,\n  \"configs\": [\n    {\n      \"environment\": \"TEST\",\n      \"clientId\": \"cliente123\",\n      \"enabled\": true\n    }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{baseURL}}/api/features",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"api",
-								"features"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -769,7 +692,7 @@
 			"name": "Listar_features",
 			"item": [
 				{
-					"name": "Usuario logueado y autenticado lista features",
+					"name": "Rol USER - lista features",
 					"event": [
 						{
 							"listen": "test",

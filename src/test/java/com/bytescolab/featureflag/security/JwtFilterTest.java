@@ -107,7 +107,7 @@ class JwtFilterTest {
     }
 
     @Test
-    void doFilter_tokenThrowsApiException_clearsContextAndRethrows() throws ServletException, IOException {
+    void doFilter_tokenThrowsApiException_clearsContextAndRethrows() {
         request.setRequestURI("/api/feature");
         request.addHeader("Authorization", "Bearer expired-token");
 

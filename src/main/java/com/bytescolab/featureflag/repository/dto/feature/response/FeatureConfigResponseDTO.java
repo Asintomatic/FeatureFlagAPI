@@ -1,13 +1,10 @@
 package com.bytescolab.featureflag.repository.dto.feature.response;
 
 import com.bytescolab.featureflag.model.enums.Environment;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 /**
  * DTO de respuesta para representar la configuración
  * de una {@code Feature} en un entorno y/o cliente específico.
@@ -26,13 +23,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class FeatureConfigResponseDTO {
-
-    /**
-     * Identificador único de la configuración de la feature.
-     * Solo lectura, generado por el sistema.
-     */
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    private UUID id;
 
     /**
      * Entorno al que aplica esta configuración (ej. DEV, STAGING, PROD).

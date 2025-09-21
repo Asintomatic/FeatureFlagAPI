@@ -85,22 +85,21 @@ public class FeatureServiceImpl implements FeatureService {
 
     @Override
     public List<FeatureSummaryResponseDTO> getAllFeatures(Boolean enabled, String name) {
-        if (enabled != null && name != null) {
-            validateFeatureExists(name);
-            return featureRepository.findByEnabledByDefaultAndNameContainingIgnoreCase(enabled, name)
-                    .stream().map(FeatureMapper::toSummaryDTO).toList();
-        }
-        if (name != null) {
-            validateFeatureExists(name);
-            return featureRepository.findByNameContainingIgnoreCase(name)
-                    .stream().map(FeatureMapper::toSummaryDTO).toList();
-        }
-        if (enabled != null) {
-            return featureRepository.findByEnabledByDefault(enabled)
-                    .stream().map(FeatureMapper::toSummaryDTO).toList();
-        }
-        return featureRepository.findAll().stream()
-                .map(FeatureMapper::toSummaryDTO).toList();
+        var features = featureRepository.findAll();
+
+        return features.stream()
+                .filter(feature -> name == null || feature.getName().equalsIgnoreCase(name))
+                .filter(feature -> {
+                    if (enabled != null) {
+                        return feature.getConfigs().stream()
+                                .anyMatch(config -> config.isEnabled() == enabled);
+                    } else {
+
+                        return feature.isEnabledByDefault();
+                    }
+                })
+                .map(FeatureMapper::toSummaryDTO)
+                .toList();
     }
 
     @Override
@@ -129,7 +128,7 @@ public class FeatureServiceImpl implements FeatureService {
         config.setEnabled(true);
         featureConfigRepository.save(config);
 
-        featureAuditLogger.logActivation(feature.getName(), dto.getEnvironment().toString(), dto.getClientId(), currentUser);;
+        featureAuditLogger.logActivation(feature.getName(), dto.getEnvironment().toString(), dto.getClientId(), currentUser);
         log.info("Feature '{}' activada correctamente para clientId: '{}' y env: '{}'",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
 
@@ -173,12 +172,6 @@ public class FeatureServiceImpl implements FeatureService {
                 .or(() -> featureConfigRepository.findByFeatureIdAndEnvironmentAndClientIdIsNull(feature.getId(), environment)
                         .map(FeatureConfig::isEnabled))
                 .orElse(feature.isEnabledByDefault());
-    }
-
-    private void validateFeatureExists(String name) {
-        if (!featureRepository.existsByName(name)) {
-            throw new ApiException(ErrorCodes.FEATURE_NOT_FOUND, "No hay ninguna feature con ese nombre");
-        }
     }
 
     private Feature getFeatureOrThrow(UUID featureId) {
