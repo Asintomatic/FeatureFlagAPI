@@ -1,22 +1,25 @@
 package com.bytescolab.featureflag.service.feature;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.exception.ApiException;
 import com.bytescolab.featureflag.exception.ErrorCodes;
-import com.bytescolab.featureflag.mapper.FeatureMapper;
 import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.repository.FeatureConfigRepository;
 import com.bytescolab.featureflag.repository.FeatureRepository;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureConfigCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureConfigResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.repository.mapper.FeatureMapper;
+import com.bytescolab.featureflag.config.security.SecurityUtils;
+import com.bytescolab.featureflag.utils.logging.FeatureAuditLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -25,51 +28,76 @@ public class FeatureServiceImpl implements FeatureService {
 
     private final FeatureRepository featureRepository;
     private final FeatureConfigRepository featureConfigRepository;
+    private final FeatureAuditLogger featureAuditLogger;
+
 
     public FeatureServiceImpl(FeatureRepository featureRepository,
-                              FeatureConfigRepository featureConfigRepository) {
+                              FeatureConfigRepository featureConfigRepository, FeatureAuditLogger featureAuditLogger) {
         this.featureRepository = featureRepository;
         this.featureConfigRepository = featureConfigRepository;
+        this.featureAuditLogger = featureAuditLogger;
     }
 
     @Override
     public FeatureDetailResponseDTO createFeature(FeatureCreateRequestDTO dto) {
         if (featureRepository.existsByName(dto.getName())) {
-            throw new IllegalArgumentException("Feature ya existe");
+            throw new ApiException(ErrorCodes.FEATURE_EXISTS, ErrorCodes.FEATURE_EXISTS_MSG);
         }
 
         Feature entity = FeatureMapper.toEntity(dto);
         Feature saved = featureRepository.save(entity);
+        String currentUser = SecurityUtils.getCurrentUser();
+
+        featureAuditLogger.logCreation(dto.getName(), currentUser);
+        log.info("Feature {} creada con éxito.", entity.getName());
 
         return FeatureMapper.toDetailResponseDTO(saved);
     }
 
     @Override
-    public List<FeatureSummaryResponseDTO> getAllFeatures(Boolean enabled, String name) {
-        List<Feature> features;
-        boolean feature;
+    public FeatureConfigResponseDTO createConfigFeature(UUID id, FeatureConfigCreateRequestDTO dto) {
 
-        if (enabled != null && name != null) {
-            feature = featureRepository.existsByName(name);
-            if(feature){
-                features = featureRepository.findByEnabledByDefaultAndNameContainingIgnoreCase(enabled, name);
-            }else {
-                throw new IllegalArgumentException(" No hay ninguna feature con ese nombre");
-            }
-        } else if (name != null) {
-            feature = featureRepository.existsByName(name);
-            if(feature){
-                features = featureRepository.findByNameContainingIgnoreCase(name);
-            }else {
-                throw new IllegalArgumentException(" No hay ninguna feature con ese nombre");
-            }
-        } else if (enabled != null) {
-            features = featureRepository.findByEnabledByDefault(enabled);
-        } else {
-            features = featureRepository.findAll();
+        Feature feature = getFeatureOrThrow(id);
+        boolean exists = featureConfigRepository
+                .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
+                .isPresent();
+
+        if (exists) {
+            throw new ApiException(ErrorCodes.FEATURE_EXISTS_CONFIG,ErrorCodes.FEATURE_EXISTS_CONFIG_MSG);
         }
 
+        FeatureConfig config = FeatureConfig.builder()
+                .feature(feature)
+                .environment(dto.getEnvironment())
+                .clientId(dto.getClientId())
+                .enabled(dto.getEnabled())
+                .build();
+
+        FeatureConfig saved = featureConfigRepository.save(config);
+
+        return FeatureConfigResponseDTO.builder()
+                .environment(saved.getEnvironment())
+                .clientId(saved.getClientId())
+                .enabled(saved.isEnabled())
+                .build();
+    }
+
+
+    @Override
+    public List<FeatureSummaryResponseDTO> getAllFeatures(Boolean enabled, String name) {
+        var features = featureRepository.findAll();
+
         return features.stream()
+                .filter(feature -> name == null || feature.getName().equalsIgnoreCase(name))
+                .filter(feature -> {
+                    if (enabled != null) {
+                        return feature.getConfigs().stream()
+                                .anyMatch(config -> config.isEnabled() == enabled);
+                    } else {
+
+                        return feature.isEnabledByDefault();
+                    }
+                })
                 .map(FeatureMapper::toSummaryDTO)
                 .toList();
     }
@@ -78,78 +106,76 @@ public class FeatureServiceImpl implements FeatureService {
     public FeatureDetailResponseDTO getFeatureById(UUID id) {
         Feature feature = featureRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
-
         return FeatureMapper.toDetailResponseDTO(feature);
     }
 
     @Override
     public String enableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
-        Feature feature = featureRepository.findById(featureId)
-                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
+        boolean isActivated = isFeatureActived(featureId, dto.getClientId(), dto.getEnvironment());
+        if (isActivated) {
+            throw new ApiException(ErrorCodes.FEATURE_ENABLE, ErrorCodes.FEATURE_ENABLE_MSG);
+        }
+        if (Boolean.FALSE.equals(dto.getEnabled())) {
+            throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        }
+        Feature feature = getFeatureOrThrow(featureId);
 
         FeatureConfig config = featureConfigRepository
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
-                .orElse(null);
+                .orElse(FeatureMapper.toConfigEntity(dto, feature));
 
-        if (Boolean.FALSE.equals(dto.getEnabled()) || dto.getEnabled() == null) {
-            throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
-        }
-
-        if (config == null) {
-            config = FeatureMapper.toConfigEntity(dto, feature);
-            config.setEnabled(true);
-            log.info("Creando nueva configuración para feature '{}'", feature.getName());
-        } else {
-            config.setEnabled(true);
-            log.info("Actualizando configuración existente para feature '{}'", feature.getName());
-        }
-
+        String currentUser = SecurityUtils.getCurrentUser();
+        config.setEnabled(true);
         featureConfigRepository.save(config);
 
-        return String.format("Feature '%s' activada correctamente para clientId=%s y env=%s",
+        featureAuditLogger.logActivation(feature.getName(), dto.getEnvironment().toString(), dto.getClientId(), currentUser);
+        log.info("Feature '{}' activada correctamente para clientId: '{}' y env: '{}'",
+                feature.getName(), dto.getClientId(), dto.getEnvironment());
+
+        return String.format("Feature '%s' activada correctamente para clientId= %s y env= %s",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
     }
 
     @Override
     public String disableFeatureForClientOrEnv(UUID featureId, FeatureActivationRequestDTO dto) {
-        Feature feature = featureRepository.findById(featureId)
-                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
+        boolean isActivated = isFeatureActived(featureId, dto.getClientId(), dto.getEnvironment());
+        if (!isActivated) {
+            throw new ApiException(ErrorCodes.FEATURE_DISABLE, ErrorCodes.FEATURE_DISABLE_MSG);
+        }
+        if (Boolean.TRUE.equals(dto.getEnabled())) {
+            throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        }
+        Feature feature = getFeatureOrThrow(featureId);
 
         FeatureConfig config = featureConfigRepository
                 .findByFeatureAndEnvironmentAndClientId(feature, dto.getEnvironment(), dto.getClientId())
-                .orElseThrow(() -> new RuntimeException("No existe asignación para deshabilitar"));
-        if(dto.getEnabled().equals(true)){
-           throw new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
-        }
+                .orElseThrow(() -> new ApiException(ErrorCodes.BAD_PARAMS, "No existe configuración para deshabilitar"));
+
+        String currentUser = SecurityUtils.getCurrentUser();
         config.setEnabled(false);
         featureConfigRepository.save(config);
 
-        return String.format("Feature '%s' desactivada correctamente para clientId=%s y env=%s",
+        featureAuditLogger.logDesactivation(feature.getName(), dto.getEnvironment().toString(), dto.getClientId(), currentUser);
+        log.info("Feature '{}' desactivada correctamente para clientId: '{}' y env: '{}'",
+                feature.getName(), dto.getClientId(), dto.getEnvironment());
+
+        return String.format("Feature '%s' desactivada correctamente para clientId= %s y env= %s",
                 feature.getName(), dto.getClientId(), dto.getEnvironment());
     }
 
     @Override
     public boolean isFeatureActived(UUID featureId, String clientId, Environment environment) {
-        log.info("Buscando feature con ID: {}", featureId);
-        Optional<Feature> featureOpt = featureRepository.findById(featureId);
+        Feature feature = getFeatureOrThrow(featureId);
 
-        if (featureOpt.isEmpty()) {
-            log.warn("Feature con ID {} no encontrada", featureId);
-            return false;
-        }
+        return featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, environment, clientId)
+                .map(FeatureConfig::isEnabled)
+                .or(() -> featureConfigRepository.findByFeatureIdAndEnvironmentAndClientIdIsNull(feature.getId(), environment)
+                        .map(FeatureConfig::isEnabled))
+                .orElse(feature.isEnabledByDefault());
+    }
 
-        Feature feature = featureOpt.get();
-
-        Optional<FeatureConfig> configByClient = featureConfigRepository
-                .findByFeatureAndEnvironmentAndClientId(feature, environment, clientId);
-
-        if (configByClient.isPresent()) {
-            return configByClient.get().isEnabled();
-        }
-
-        Optional<FeatureConfig> configByEnv = featureConfigRepository
-                .findByFeatureIdAndEnvironmentAndClientIdIsNull(feature.getId(), environment);
-
-        return configByEnv.map(FeatureConfig::isEnabled).orElseGet(feature::isEnabledByDefault);
+    private Feature getFeatureOrThrow(UUID featureId) {
+        return featureRepository.findById(featureId)
+                .orElseThrow(() -> new ApiException(ErrorCodes.FEATURE_NOT_FOUND, ErrorCodes.FEATURE_NOT_FOUND_MSG));
     }
 }

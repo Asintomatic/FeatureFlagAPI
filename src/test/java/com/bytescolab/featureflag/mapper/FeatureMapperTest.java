@@ -1,14 +1,15 @@
 package com.bytescolab.featureflag.mapper;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureConfigCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureConfigResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureConfigCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureConfigResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.model.entity.Feature;
 import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import com.bytescolab.featureflag.model.enums.Environment;
+import com.bytescolab.featureflag.repository.mapper.FeatureMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -111,7 +112,6 @@ class FeatureMapperTest {
 
         FeatureConfigResponseDTO dto = FeatureMapper.toConfigDTO(cfg);
 
-        assertEquals(cfg.getId(), dto.getId());
         assertEquals(Environment.STAGING, dto.getEnvironment());
         assertEquals("clientC", dto.getClientId());
         assertTrue(dto.getEnabled());

@@ -1,9 +1,11 @@
 package com.bytescolab.featureflag.controller;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureConfigCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureConfigResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.service.feature.FeatureService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,10 +51,10 @@ import java.util.UUID;
  *
  * @author Bytes
  * @see com.bytescolab.featureflag.service.feature.FeatureService
- * @see com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO
- * @see com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO
- * @see com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO
- * @see com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO
+ * @see FeatureCreateRequestDTO
+ * @see FeatureActivationRequestDTO
+ * @see FeatureDetailResponseDTO
+ * @see FeatureSummaryResponseDTO
  */
 @RestController
 @RequestMapping("/api/features")
@@ -81,6 +83,19 @@ public class FeatureController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<FeatureDetailResponseDTO> createFeature(@Valid @RequestBody FeatureCreateRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(featureService.createFeature(dto));
+    }
+
+    /**
+     * Crea una nueva feature en el sistema.
+     *
+     * @param dto datos de la feature a crear.
+     * @return {@link ResponseEntity} con los detalles de la feature creada y estado {@code 201 Created}.
+     */
+    @PostMapping("/{id}")
+    @Operation(summary = "Crear nueva config para una feature", description = "Crea una nueva config para una Feature")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<FeatureConfigResponseDTO> createFeature(@PathVariable UUID id, @Valid @RequestBody FeatureConfigCreateRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(featureService.createConfigFeature(id, dto));
     }
 
     /**

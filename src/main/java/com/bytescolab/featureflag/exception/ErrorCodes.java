@@ -61,6 +61,22 @@ public final class ErrorCodes {
     /** Mensaje descriptivo para {@link #FEATURE_EXISTS}. */
     public static final String FEATURE_EXISTS_MSG = "La feature ya existe";
 
+    /** Código de error cuando ya está activada la feature. */
+    public static final String FEATURE_ENABLE = "FF_003";
+    /** Mensaje descriptivo para {@link #FEATURE_ENABLE}. */
+    public static final String FEATURE_ENABLE_MSG = "La feature ya está activada en ese entorno/cliente";
+
+    /** Código de error cuando ya está desactivada la feature. */
+    public static final String FEATURE_DISABLE = "FF_004";
+    /** Mensaje descriptivo para {@link #FEATURE_DISABLE}. */
+    public static final String FEATURE_DISABLE_MSG = "La feature ya está desactivada en ese entorno/cliente";
+
+    /** Código de error cuando ya está existe una config para la feature. */
+    public static final String FEATURE_EXISTS_CONFIG = "FF_005";
+    /**Mensaje descriptivo para {@link #FEATURE_EXISTS_CONFIG}*/
+    public static final String FEATURE_EXISTS_CONFIG_MSG = "Ya existe una configuración para feature";
+
+
     // ======================
     // User errors
     // ======================
@@ -83,6 +99,11 @@ public final class ErrorCodes {
     public static final String BAD_PARAMS = "PARAMS_001";
     /** Mensaje descriptivo para {@link #BAD_PARAMS}. */
     public static final String BAD_PARAMS_MSG = "Parámetros no aceptados";
+
+    /** Código de error cuando los parámetros recibidos no son aceptados. */
+    public static final String BAD_REQUEST = "PARAMS_002";
+    /** Mensaje descriptivo para {@link #BAD_REQUEST}. */
+    public static final String BAD_REQUEST_MSG = "Parámetros no aceptados";
 
     /**
      * Constructor privado para evitar la instanciación de esta clase de utilidades.

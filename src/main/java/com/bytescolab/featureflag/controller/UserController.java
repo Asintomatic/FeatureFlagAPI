@@ -1,7 +1,7 @@
 package com.bytescolab.featureflag.controller;
 
 
-import com.bytescolab.featureflag.dto.auth.request.UserRoleUpdateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.request.UserRoleUpdateRequestDTO;
 import com.bytescolab.featureflag.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  * </ul>
  * @author Bytes
  * @see UserService
- * @see com.bytescolab.featureflag.dto.auth.request.UserRoleUpdateRequestDTO
+ * @see UserRoleUpdateRequestDTO
  */
 @RestController
 @Tag(name = "Role", description = "Role endpoints")

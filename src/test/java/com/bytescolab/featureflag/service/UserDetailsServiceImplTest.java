@@ -1,9 +1,10 @@
 package com.bytescolab.featureflag.service;
 
+import com.bytescolab.featureflag.config.security.auth.CustomUserDetails;
+import com.bytescolab.featureflag.exception.ApiException;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
 import com.bytescolab.featureflag.repository.UserRepository;
-import com.bytescolab.featureflag.security.auth.CustomUserDetails;
 import com.bytescolab.featureflag.service.user.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,12 +12,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class UserDetailsServiceImplTest {
 
@@ -44,6 +46,6 @@ class UserDetailsServiceImplTest {
     @Test
     void loadUserByUsername_notFound() {
         when(userRepository.findByUsername("nope")).thenReturn(Optional.empty());
-        assertThrows(UsernameNotFoundException.class, () -> service.loadUserByUsername("nope"));
+        assertThrows(ApiException.class, () -> service.loadUserByUsername("nope"));
     }
 }

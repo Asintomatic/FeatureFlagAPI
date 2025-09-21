@@ -1,9 +1,10 @@
 package com.bytescolab.featureflag.mapper;
 
-import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
-import com.bytescolab.featureflag.dto.auth.request.UserRoleUpdateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.request.RegisterRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.request.UserRoleUpdateRequestDTO;
 import com.bytescolab.featureflag.model.entity.User;
 import com.bytescolab.featureflag.model.enums.Role;
+import com.bytescolab.featureflag.repository.mapper.UserMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

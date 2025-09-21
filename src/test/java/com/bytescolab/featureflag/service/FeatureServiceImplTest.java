@@ -1,9 +1,6 @@
 package com.bytescolab.featureflag.service;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+
 import com.bytescolab.featureflag.exception.ApiException;
 import com.bytescolab.featureflag.exception.ErrorCodes;
 import com.bytescolab.featureflag.model.entity.Feature;
@@ -11,7 +8,14 @@ import com.bytescolab.featureflag.model.entity.FeatureConfig;
 import com.bytescolab.featureflag.model.enums.Environment;
 import com.bytescolab.featureflag.repository.FeatureConfigRepository;
 import com.bytescolab.featureflag.repository.FeatureRepository;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureConfigCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureConfigResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.service.feature.FeatureServiceImpl;
+import com.bytescolab.featureflag.utils.logging.FeatureAuditLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,13 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class FeatureServiceImplTest {
 
@@ -37,6 +36,9 @@ class FeatureServiceImplTest {
 
     @Mock
     private FeatureConfigRepository featureConfigRepository;
+
+    @Mock
+    private FeatureAuditLogger featureAuditLogger;
 
     @InjectMocks
     private FeatureServiceImpl service;
@@ -71,15 +73,17 @@ class FeatureServiceImplTest {
 
         assertEquals("flag-x", res.getName());
         verify(featureRepository).save(any(Feature.class));
+        verify(featureAuditLogger).logCreation(eq("flag-x"), anyString());
     }
 
     @Test
-    void createFeature_alreadyExists_throwsException() {
+    void createFeature_alreadyExists_throwsApiException() {
         FeatureCreateRequestDTO dto = FeatureCreateRequestDTO.builder().name("flag-x").build();
 
         when(featureRepository.existsByName("flag-x")).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> service.createFeature(dto));
+        ApiException ex = assertThrows(ApiException.class, () -> service.createFeature(dto));
+        assertEquals(ErrorCodes.FEATURE_EXISTS, ex.getCode());
     }
 
     @Test
@@ -105,10 +109,11 @@ class FeatureServiceImplTest {
     }
 
     @Test
-    void getAllFeatures_withNameNotFound_throws() {
+    void getAllFeatures_withNameNotFound_throwsApiException() {
         when(featureRepository.existsByName("other")).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> service.getAllFeatures(null, "other"));
+        ApiException ex = assertThrows(ApiException.class, () -> service.getAllFeatures(null, "other"));
+        assertEquals(ErrorCodes.FEATURE_NOT_FOUND, ex.getCode());
     }
 
     @Test
@@ -128,23 +133,6 @@ class FeatureServiceImplTest {
         assertEquals(ErrorCodes.FEATURE_NOT_FOUND, ex.getCode());
     }
 
-    @Test
-    void enableFeature_createsNewConfig() {
-        when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
-        when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.DEV, "clientA"))
-                .thenReturn(Optional.empty());
-
-        FeatureActivationRequestDTO dto = FeatureActivationRequestDTO.builder()
-                .environment(Environment.DEV)
-                .clientId("clientA")
-                .enabled(true)
-                .build();
-
-        String msg = service.enableFeatureForClientOrEnv(featureId, dto);
-
-        assertTrue(msg.contains("activada correctamente"));
-        verify(featureConfigRepository).save(any(FeatureConfig.class));
-    }
 
     @Test
     void enableFeature_withDisabledFlag_throwsApiException() {
@@ -159,7 +147,56 @@ class FeatureServiceImplTest {
         ApiException ex = assertThrows(ApiException.class,
                 () -> service.enableFeatureForClientOrEnv(featureId, dto));
 
-        assertEquals(ErrorCodes.BAD_PARAMS, ex.getCode());
+        assertEquals(ErrorCodes.FEATURE_ENABLE, ex.getCode());
+    }
+
+    @Test
+    void enableFeature_withNullEnabled_throwsApiException() {
+        when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
+        when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.DEV, "clientB"))
+                .thenReturn(Optional.of(FeatureConfig.builder()
+                        .feature(feature)
+                        .environment(Environment.DEV)
+                        .clientId("clientB")
+                        .enabled(true)
+                        .build()));
+
+        FeatureActivationRequestDTO dto = FeatureActivationRequestDTO.builder()
+                .environment(Environment.DEV)
+                .clientId("clientB")
+                .enabled(null) // <- caso null
+                .build();
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> service.enableFeatureForClientOrEnv(featureId, dto));
+
+        assertTrue(ex.getMessage().contains("ya está activada"));
+    }
+
+
+    @Test
+    void enableFeature_alreadyActive_throwsApiException() {
+        FeatureConfig config = FeatureConfig.builder()
+                .feature(feature)
+                .environment(Environment.DEV)
+                .clientId("c1")
+                .enabled(true)
+                .build();
+
+        when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
+        when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.DEV, "c1"))
+                .thenReturn(Optional.of(config));
+
+        FeatureActivationRequestDTO dto = FeatureActivationRequestDTO.builder()
+                .environment(Environment.DEV)
+                .clientId("c1")
+                .enabled(true)
+                .build();
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> service.enableFeatureForClientOrEnv(featureId, dto));
+
+        assertEquals(ErrorCodes.FEATURE_ENABLE, ex.getCode());
     }
 
     @Test
@@ -186,12 +223,17 @@ class FeatureServiceImplTest {
         assertTrue(msg.contains("desactivada correctamente"));
         assertFalse(config.isEnabled());
         verify(featureConfigRepository).save(config);
+        verify(featureAuditLogger).logDesactivation(eq("flag-x"), eq("PROD"), eq("c1"), anyString());
     }
 
     @Test
     void disableFeature_withEnabledFlag_throwsApiException() {
-        FeatureConfig config = FeatureConfig.builder().feature(feature)
-                .environment(Environment.PROD).clientId("c1").enabled(true).build();
+        FeatureConfig config = FeatureConfig.builder()
+                .feature(feature)
+                .environment(Environment.PROD)
+                .clientId("c1")
+                .enabled(true)
+                .build();
 
         when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
         when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.PROD, "c1"))
@@ -201,6 +243,24 @@ class FeatureServiceImplTest {
                 .environment(Environment.PROD)
                 .clientId("c1")
                 .enabled(true)
+                .build();
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> service.disableFeatureForClientOrEnv(featureId, dto));
+
+        assertEquals(ErrorCodes.BAD_PARAMS, ex.getCode());
+    }
+
+    @Test
+    void disableFeature_configNotFound_throwsApiException() {
+        when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
+        when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.DEV, "cX"))
+                .thenReturn(Optional.empty());
+
+        FeatureActivationRequestDTO dto = FeatureActivationRequestDTO.builder()
+                .environment(Environment.DEV)
+                .clientId("cX")
+                .enabled(false)
                 .build();
 
         ApiException ex = assertThrows(ApiException.class,
@@ -239,9 +299,88 @@ class FeatureServiceImplTest {
     }
 
     @Test
-    void isFeatureActived_featureNotFound_returnsFalse() {
+    void isFeatureActived_noConfig_usesEnabledByDefault() {
+        feature.setEnabledByDefault(false);
+
+        when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
+        when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.STAGING, "c2"))
+                .thenReturn(Optional.empty());
+        when(featureConfigRepository.findByFeatureIdAndEnvironmentAndClientIdIsNull(featureId, Environment.STAGING))
+                .thenReturn(Optional.empty());
+
+        assertFalse(service.isFeatureActived(featureId, "c2", Environment.STAGING));
+    }
+
+    @Test
+    void isFeatureActived_featureNotFound_throwsApiException() {
         when(featureRepository.findById(featureId)).thenReturn(Optional.empty());
 
-        assertFalse(service.isFeatureActived(featureId, "c1", Environment.DEV));
+        ApiException ex = assertThrows(ApiException.class,
+                () -> service.isFeatureActived(featureId, "c1", Environment.DEV));
+
+        assertEquals(ErrorCodes.FEATURE_NOT_FOUND, ex.getCode());
     }
+
+    @Test
+    void createConfigFeature_ok() {
+        FeatureConfigCreateRequestDTO dto = FeatureConfigCreateRequestDTO.builder()
+                .environment(Environment.DEV)
+                .clientId("client1")
+                .enabled(true)
+                .build();
+
+        when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
+        when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.DEV, "client1"))
+                .thenReturn(Optional.empty());
+        when(featureConfigRepository.save(any(FeatureConfig.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        FeatureConfigResponseDTO res = service.createConfigFeature(featureId, dto);
+
+        assertEquals(Environment.DEV, res.getEnvironment());
+        assertEquals("client1", res.getClientId());
+        assertTrue(res.getEnabled());
+
+        verify(featureConfigRepository).save(any(FeatureConfig.class));
+    }
+
+    @Test
+    void createConfigFeature_alreadyExists_throwsApiException() {
+        FeatureConfigCreateRequestDTO dto = FeatureConfigCreateRequestDTO.builder()
+                .environment(Environment.DEV)
+                .clientId("client1")
+                .enabled(true)
+                .build();
+
+        when(featureRepository.findById(featureId)).thenReturn(Optional.of(feature));
+        when(featureConfigRepository.findByFeatureAndEnvironmentAndClientId(feature, Environment.DEV, "client1"))
+                .thenReturn(Optional.of(FeatureConfig.builder()
+                        .feature(feature)
+                        .environment(Environment.DEV)
+                        .clientId("client1")
+                        .enabled(true)
+                        .build()));
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> service.createConfigFeature(featureId, dto));
+
+        assertEquals(ErrorCodes.FEATURE_EXISTS_CONFIG, ex.getCode());
+    }
+
+    @Test
+    void createConfigFeature_featureNotFound_throwsApiException() {
+        FeatureConfigCreateRequestDTO dto = FeatureConfigCreateRequestDTO.builder()
+                .environment(Environment.STAGING)
+                .clientId("clientX")
+                .enabled(false)
+                .build();
+
+        when(featureRepository.findById(featureId)).thenReturn(Optional.empty());
+
+        ApiException ex = assertThrows(ApiException.class,
+                () -> service.createConfigFeature(featureId, dto));
+
+        assertEquals(ErrorCodes.FEATURE_NOT_FOUND, ex.getCode());
+    }
+
 }

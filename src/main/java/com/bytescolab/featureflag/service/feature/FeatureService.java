@@ -1,17 +1,23 @@
 package com.bytescolab.featureflag.service.feature;
 
-import com.bytescolab.featureflag.dto.feature.request.FeatureCreateRequestDTO;
-import com.bytescolab.featureflag.dto.feature.request.FeatureActivationRequestDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureDetailResponseDTO;
-import com.bytescolab.featureflag.dto.feature.response.FeatureSummaryResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureConfigCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureCreateRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.request.FeatureActivationRequestDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureConfigResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureDetailResponseDTO;
+import com.bytescolab.featureflag.repository.dto.feature.response.FeatureSummaryResponseDTO;
 import com.bytescolab.featureflag.model.enums.Environment;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public interface FeatureService {
 
     FeatureDetailResponseDTO createFeature(FeatureCreateRequestDTO dto);
+
+    FeatureConfigResponseDTO createConfigFeature (UUID id, FeatureConfigCreateRequestDTO dto);
 
     List<FeatureSummaryResponseDTO> getAllFeatures(Boolean enabled, String name);
 

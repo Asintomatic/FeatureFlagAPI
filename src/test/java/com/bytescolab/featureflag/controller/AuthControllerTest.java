@@ -1,7 +1,11 @@
 package com.bytescolab.featureflag.controller;
 
-import com.bytescolab.featureflag.dto.auth.request.*;
-import com.bytescolab.featureflag.dto.auth.response.*;
+import com.bytescolab.featureflag.config.security.config.SecurityConfig;
+import com.bytescolab.featureflag.config.security.jwt.JwtFilter;
+import com.bytescolab.featureflag.repository.dto.auth.request.LoginRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.request.RegisterRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.response.AuthRegisterResponseDTO;
+import com.bytescolab.featureflag.repository.dto.auth.response.AuthResponseDTO;
 import com.bytescolab.featureflag.service.auth.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -33,8 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
                 classes = {
-                        com.bytescolab.featureflag.security.config.SecurityConfig.class,
-                        com.bytescolab.featureflag.security.jwt.JwtFilter.class
+                        SecurityConfig.class,
+                        JwtFilter.class
                 }
         )
 )

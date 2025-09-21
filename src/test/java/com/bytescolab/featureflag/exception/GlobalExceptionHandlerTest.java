@@ -1,118 +1,98 @@
 package com.bytescolab.featureflag.exception;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.context.request.WebRequest;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler handler;
-    private WebRequest request;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         handler = new GlobalExceptionHandler();
-        request = mock(WebRequest.class);
-        when(request.getDescription(false)).thenReturn("uri=/api/test");
+
+        Field field = GlobalExceptionHandler.class.getDeclaredField("activeProfile");
+        field.setAccessible(true);
+        field.set(handler, "dev");
     }
 
     @Test
-    void handleApiException_returnsCustomBody() {
-        ApiException ex = new ApiException("AUTH_001", "Invalid token");
-        ResponseEntity<Object> response = handler.handleApiException(ex, request);
+    void handleApiException_returnsProperResponse() {
+        ApiException ex = new ApiException(ErrorCodes.USER_EXISTS, ErrorCodes.USER_EXISTS_MSG);
 
-        assertEquals(401, response.getStatusCode().value());
-        Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertEquals("AUTH_001", body.get("code"));
-        assertEquals("Invalid token", body.get("message"));
+        ResponseEntity<Object> response = handler.handleApiException(
+                ex,
+                new ServletWebRequest(new MockHttpServletRequest())
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Object bodyObj = response.getBody();
+        assertNotNull(bodyObj);
+        assertInstanceOf(Map.class, bodyObj);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = (Map<String, Object>) bodyObj;
+
+        assertEquals(ErrorCodes.USER_EXISTS, body.get("code"));
+        assertEquals(ErrorCodes.USER_EXISTS_MSG, body.get("message"));
     }
 
     @Test
-    void handleValidation_returnsErrors() {
+    void handleValidation_returnsFieldErrorsInNonProd() {
         BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "test");
-        bindingResult.addError(new FieldError("test", "field1", "must not be null"));
+        bindingResult.addError(new FieldError("test", "username", "must not be blank"));
 
-        MethodArgumentNotValidException ex = new MethodArgumentNotValidException(null, bindingResult);
+        MethodArgumentNotValidException ex =
+                new MethodArgumentNotValidException(null, bindingResult);
 
-        ResponseEntity<Object> response = handler.handleValidation(ex);
-        assertEquals(400, response.getStatusCode().value());
-        Map<String, Object> body = (Map<String, Object>) response.getBody();
-        assertTrue(((Map<?, ?>) body.get("errors")).containsKey("field1"));
+        ResponseEntity<Object> response = handler.handleValidation(
+                ex,
+                new ServletWebRequest(new MockHttpServletRequest())
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        Object bodyObj = response.getBody();
+        assertNotNull(bodyObj);
+        assertInstanceOf(Map.class, bodyObj);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = (Map<String, Object>) bodyObj;
+
+        assertEquals(ErrorCodes.BAD_PARAMS, body.get("code"));
+        assertTrue(((Map<?, ?>) body.get("errors")).containsKey("username"));
     }
 
     @Test
-    void handleIllegalArg_returnsBadRequest() {
-        IllegalArgumentException ex = new IllegalArgumentException("Invalid param");
-        ResponseEntity<Object> response = handler.handleIllegalArg(ex);
+    void handleGenericException_returnsBadParams() {
+        Exception ex = new Exception("Unexpected error");
 
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("Invalid param", ((Map<?, ?>) response.getBody()).get("message"));
+        ResponseEntity<Object> response = handler.handleGenericException(
+                ex,
+                new ServletWebRequest(new MockHttpServletRequest())
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        Object bodyObj = response.getBody();
+        assertNotNull(bodyObj);
+        assertInstanceOf(Map.class, bodyObj);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = (Map<String, Object>) bodyObj;
+
+        assertEquals(ErrorCodes.BAD_PARAMS, body.get("code"));
     }
-
-    @Test
-    void handleRuntimeException_returnsInternalServerError() {
-        RuntimeException ex = new RuntimeException("Unexpected error");
-        ResponseEntity<Object> response = handler.handleRuntimeException(ex, request);
-
-        assertEquals(500, response.getStatusCode().value());
-        assertEquals("Unexpected error", ((Map<?, ?>) response.getBody()).get("message"));
-    }
-
-    @Test
-    void handleBadCredentials_returnsUnauthorized() {
-        BadCredentialsException ex = new BadCredentialsException("Bad credentials");
-        ResponseEntity<Object> response = handler.handleBadCredentials(ex, request);
-
-        assertEquals(401, response.getStatusCode().value());
-        assertEquals("Bad credentials", ((Map<?, ?>) response.getBody()).get("message"));
-    }
-
-    @Test
-    void handleHttpMessageNotReadable_withInvalidFormat_returnsCustomMessage() {
-        InvalidFormatException cause = new InvalidFormatException(null, "Invalid enum", "XXX", TestEnum.class);
-        cause.prependPath(new Object(), "role");
-        HttpMessageNotReadableException ex = new HttpMessageNotReadableException("JSON parse error", cause);
-
-        ResponseEntity<Object> response = handler.handleHttpMessageNotReadable(ex, request);
-
-        assertEquals(400, response.getStatusCode().value());
-        String msg = (String) ((Map<?, ?>) response.getBody()).get("message");
-        assertTrue(msg.contains("role"));
-        assertTrue(msg.contains("Valores permitidos"));
-    }
-
-    @Test
-    void handleHttpMessageNotReadable_withOtherCause_returnsGenericBadRequest() {
-        HttpMessageNotReadableException ex = new HttpMessageNotReadableException("Malformed JSON", new Throwable("generic"));
-
-        ResponseEntity<Object> response = handler.handleHttpMessageNotReadable(ex, request);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("JSON mal formado o incompatible", ((Map<?, ?>) response.getBody()).get("message"));
-    }
-
-    @Test
-    void handleAccessDenied_returnsForbidden() {
-        AccessDeniedException ex = new AccessDeniedException("Denied");
-        ResponseEntity<Object> response = handler.handleAccessDenied(ex, request);
-
-        assertEquals(403, response.getStatusCode().value());
-        assertEquals("Acceso denegado: no tienes permisos suficientes", ((Map<?, ?>) response.getBody()).get("message"));
-    }
-
-    enum TestEnum { ADMIN, USER }
 }

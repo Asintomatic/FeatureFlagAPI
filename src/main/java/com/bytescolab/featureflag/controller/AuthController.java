@@ -1,9 +1,9 @@
 package com.bytescolab.featureflag.controller;
 
-import com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO;
-import com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO;
-import com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO;
-import com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO;
+import com.bytescolab.featureflag.repository.dto.auth.request.LoginRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.request.RegisterRequestDTO;
+import com.bytescolab.featureflag.repository.dto.auth.response.AuthRegisterResponseDTO;
+import com.bytescolab.featureflag.repository.dto.auth.response.AuthResponseDTO;
 import com.bytescolab.featureflag.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,10 +40,10 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Bytes
  * @see com.bytescolab.featureflag.service.auth.AuthService
- * @see com.bytescolab.featureflag.dto.auth.request.RegisterRequestDTO
- * @see com.bytescolab.featureflag.dto.auth.request.LoginRequestDTO
- * @see com.bytescolab.featureflag.dto.auth.response.AuthResponseDTO
- * @see com.bytescolab.featureflag.dto.auth.response.AuthRegisterResponseDTO
+ * @see RegisterRequestDTO
+ * @see LoginRequestDTO
+ * @see AuthResponseDTO
+ * @see AuthRegisterResponseDTO
  */
 @RestController
 @RequestMapping("/api/auth")

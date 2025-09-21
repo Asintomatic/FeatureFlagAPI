@@ -1,234 +1,142 @@
 package com.bytescolab.featureflag.exception;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
- * {@code GlobalExceptionHandler} es un manejador centralizado de excepciones
- * para toda la aplicación. Captura diferentes tipos de errores lanzados en los
- * controladores y devuelve una respuesta JSON estructurada con información
- * detallada del error.
+ * Manejador global de excepciones que unifica todas las respuestas
+ * en base a {@link ApiException} y los códigos definidos en {@link ErrorCodes}.
  *
- * <p>Incluye el manejo de excepciones personalizadas ({@link ApiException}),
- * validaciones, credenciales inválidas, errores de parsing de JSON y problemas
- * de seguridad como accesos denegados.</p>
+ * <p>Si ocurre cualquier otra excepción no controlada, se transforma
+ * automáticamente en un {@link ApiException} genérico con código
+ * {@link ErrorCodes#BAD_PARAMS}.</p>
  *
- * <p>Cada excepción se traduce a una respuesta {@link ResponseEntity}
- * con un código HTTP apropiado y un cuerpo estándar que incluye:
- * <ul>
- *     <li>{@code timestamp} → Momento del error.</li>
- *     <li>{@code status} → Código HTTP.</li>
- *     <li>{@code error} → Descripción del error HTTP.</li>
- *     <li>{@code message} → Mensaje de error legible.</li>
- *     <li>{@code path} → Path de la petición.</li>
- * </ul>
- * </p>
+ * <p>En el entorno <b>prod</b>, los mensajes detallados de error y los
+ * campos con validaciones fallidas se ocultan para no filtrar información
+ * sensible al cliente.</p>
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    public static final String BAD_REQUEST = "Bad Request";
-    public static final String MESSAGE = "message";
-    public static final String ERROR = "error";
-    public static final String STATUS = "status";
     public static final String TIMESTAMP = "timestamp";
+    public static final String STATUS = "status";
+    public static final String ERROR = "error";
+    public static final String MESSAGE = "message";
+    public static final String CODE = "code";
+    public static final String PATH = "path";
+    public static final String ERRORS = "errors";
+
+    @Value("${spring.profiles.active:default}")
+    private String activeProfile;
 
     /**
-     * Maneja las excepciones personalizadas {@link ApiException}.
-     *
-     * @param exception excepción capturada
-     * @param request   contexto de la petición
-     * @return respuesta estructurada con el error
+     * Construye la respuesta estándar de error.
+     * Si el entorno es "prod", se ocultan detalles como "message" y "errors" par mejorar la seguridad.
+     */
+    private Map<String, Object> buildResponse(HttpStatus status, ApiException ex, String path) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put(TIMESTAMP, Instant.now());
+        body.put(STATUS, status.value());
+        body.put(ERROR, status.getReasonPhrase());
+        body.put(CODE, ex.getCode());
+        body.put(PATH, path != null ? path.replace("uri=", "") : "");
+
+        if (!"prod".equalsIgnoreCase(activeProfile)) {
+            body.put(MESSAGE, ex.getMessage());
+        } else {
+            // En el entorno prod daremos un mensaje genérico
+            body.put(MESSAGE, "Se ha producido un error en la solicitud");
+        }
+
+        return body;
+    }
+
+    /**
+     * Maneja las ApiException.
      */
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<Object> handleApiException(ApiException exception, WebRequest request) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(TIMESTAMP, Instant.now());
-        body.put(STATUS, getStatusForCode(exception.getCode()).value());
-        body.put(ERROR, getErrorName(getStatusForCode(exception.getCode())));
-        body.put("code", exception.getCode());
-        body.put(MESSAGE, exception.getMessage());
-        body.put("path", request.getDescription(false));
-        return new ResponseEntity<>(body, getStatusForCode(exception.getCode()));
+    public ResponseEntity<Object> handleApiException(ApiException ex, WebRequest request) {
+        HttpStatus status = getStatusForCode(ex.getCode());
+        return new ResponseEntity<>(
+                buildResponse(status, ex, request.getDescription(false)), status);
     }
 
     /**
-     * Devuelve el {@link HttpStatus} adecuado en base al código de error.
-     *
-     * @param code código de error interno
-     * @return estado HTTP correspondiente
-     */
-    private HttpStatus getStatusForCode(String code) {
-        if (code.startsWith("AUTH_") || code.contains("Internal")) {
-            return HttpStatus.UNAUTHORIZED;
-        }
-        return HttpStatus.BAD_REQUEST;
-    }
-
-    /**
-     * Obtiene la descripción textual del estado HTTP.
-     *
-     * @param status código de estado
-     * @return cadena con el nombre del error
-     */
-    private String getErrorName(HttpStatus status) {
-        return status.getReasonPhrase();
-    }
-
-    /**
-     * Maneja errores de validación de argumentos en los controladores
-     * (ej. @Valid fallido).
-     *
-     * @param ex excepción con los errores de validación
-     * @return respuesta con los campos inválidos y mensajes
+     * Maneja errores de validación de @Valid en los controladores.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> fields = new LinkedHashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(fe -> fields.putIfAbsent(fe.getField(), fe.getDefaultMessage()));
+    public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex, WebRequest request) {
+        ApiException apiEx = new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        Map<String, Object> body = buildResponse(HttpStatus.BAD_REQUEST, apiEx, request.getDescription(false));
 
-        Map<String, Object> body = new HashMap<>();
-        body.put(TIMESTAMP, Instant.now());
-        body.put(STATUS, HttpStatus.BAD_REQUEST.value());
-        body.put(ERROR, BAD_REQUEST);
-        body.put(MESSAGE, "Errores de validación en la solicitud");
-        body.put("errors", fields);
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Maneja excepciones de tipo {@link IllegalArgumentException}.
-     *
-     * @param ex excepción capturada
-     * @return respuesta con mensaje de error
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Object> handleIllegalArg(IllegalArgumentException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(TIMESTAMP, Instant.now());
-        body.put(STATUS, HttpStatus.BAD_REQUEST.value());
-        body.put(ERROR, BAD_REQUEST);
-        body.put(MESSAGE, ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Maneja excepciones genéricas {@link RuntimeException}.
-     *
-     * @param ex      excepción capturada
-     * @param request contexto de la petición
-     * @return respuesta con error interno del servidor
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(TIMESTAMP, Instant.now());
-        body.put(STATUS, HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put(ERROR, "Internal Server Error");
-        body.put(MESSAGE, ex.getMessage());
-        body.put("path", request.getDescription(false));
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    /**
-     * Maneja errores de autenticación cuando las credenciales son inválidas.
-     *
-     * @param ex      excepción capturada
-     * @param request contexto de la petición
-     * @return respuesta con estado 401 Unauthorized
-     */
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex, WebRequest request) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(TIMESTAMP, Instant.now());
-        body.put(STATUS, HttpStatus.UNAUTHORIZED.value());
-        body.put(ERROR, "Unauthorized");
-        body.put(MESSAGE, ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
-    }
-
-    /**
-     * Maneja errores de parseo JSON en la petición.
-     * Detecta valores inválidos para enums y devuelve mensajes personalizados.
-     *
-     * @param ex      excepción de lectura
-     * @param request contexto de la petición
-     * @return respuesta con error 400 y detalle del campo inválido
-     */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, WebRequest request) {
-        Throwable cause = ex.getCause();
-
-        if (cause instanceof InvalidFormatException ife) {
-            String fieldName = ife.getPath().stream()
-                    .map(com.fasterxml.jackson.databind.JsonMappingException.Reference::getFieldName)
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse("valor");
-
-            String acceptedValues = "";
-            if (ife.getTargetType().isEnum()) {
-                Object[] constants = ife.getTargetType().getEnumConstants();
-                acceptedValues = " Valores permitidos: " + Arrays.toString(constants);
-            }
-
-            String msg = String.format(
-                    "El campo '%s' contiene un valor inválido: '%s'.%s",
-                    fieldName,
-                    ife.getValue(),
-                    acceptedValues
-            );
-
-            Map<String, Object> body = new HashMap<>();
-            body.put(TIMESTAMP, Instant.now());
-            body.put(STATUS, HttpStatus.BAD_REQUEST.value());
-            body.put(ERROR, BAD_REQUEST);
-            body.put(MESSAGE, msg);
-            body.put("path", request.getDescription(false).replace("uri=", ""));
-            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        if (!"prod".equalsIgnoreCase(activeProfile)) {
+            Map<String, String> fieldErrors = ex.getBindingResult()
+                    .getFieldErrors()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            fe -> fe.getField(),
+                            fe -> fe.getDefaultMessage(),
+                            (existing, replacement) -> existing // evitar duplicados
+                    ));
+            body.put(ERRORS, fieldErrors);
         }
 
-        Map<String, Object> body = new HashMap<>();
-        body.put(TIMESTAMP, Instant.now());
-        body.put(STATUS, HttpStatus.BAD_REQUEST.value());
-        body.put(ERROR, BAD_REQUEST);
-        body.put(MESSAGE, "JSON mal formado o incompatible");
-        body.put("path", request.getDescription(false).replace("uri=", ""));
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     /**
-     * Maneja intentos de acceso sin permisos suficientes.
-     *
-     * @param ex      excepción capturada
-     * @param request contexto de la petición
-     * @return respuesta con estado 403 Forbidden
+     * Cualquier excepción no controlada se transforma en ApiException.
      */
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(TIMESTAMP, Instant.now());
-        body.put(STATUS, HttpStatus.FORBIDDEN.value());
-        body.put(ERROR, "Forbidden");
-        body.put(MESSAGE, "Acceso denegado: no tienes permisos suficientes");
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGenericException(Exception ex, WebRequest request) {
+        log.error("Excepción inesperada capturada", ex);
+        if(ex.getMessage().contains("Access Denied")){
+            ApiException apiEx = new ApiException(ErrorCodes.INVALID_CREDENTIALS, ErrorCodes.INVALID_CREDENTIALS_MSG
+            );
+            return new ResponseEntity<>(
+                    buildResponse(HttpStatus.UNAUTHORIZED, apiEx, request.getDescription(false)),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        ApiException apiEx = new ApiException(ErrorCodes.BAD_PARAMS, ErrorCodes.BAD_PARAMS_MSG);
+        return new ResponseEntity<>(
+                buildResponse(HttpStatus.BAD_REQUEST, apiEx, request.getDescription(false)),
+                HttpStatus.BAD_REQUEST
+        );
     }
+
+    private HttpStatus getStatusForCode(String code) {
+        return CODE_TO_STATUS.getOrDefault(code, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    //Map de las excepciones y Status que lanzarán en la excepción.
+    private static final Map<String, HttpStatus> CODE_TO_STATUS = Map.ofEntries(
+            Map.entry(ErrorCodes.TOKEN_EXPIRADO, HttpStatus.UNAUTHORIZED),
+            Map.entry(ErrorCodes.TOKEN_MALFORMADO, HttpStatus.BAD_REQUEST),
+            Map.entry(ErrorCodes.TOKEN_INVALIDO, HttpStatus.UNAUTHORIZED),
+            Map.entry(ErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED),
+            Map.entry(ErrorCodes.FEATURE_NOT_FOUND, HttpStatus.NOT_FOUND),
+            Map.entry(ErrorCodes.FEATURE_EXISTS, HttpStatus.NOT_FOUND),
+            Map.entry(ErrorCodes.FEATURE_ENABLE, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.FEATURE_DISABLE, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.FEATURE_EXISTS_CONFIG, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.USER_NOT_FOUND, HttpStatus.NOT_FOUND),
+            Map.entry(ErrorCodes.USER_EXISTS, HttpStatus.CONFLICT),
+            Map.entry(ErrorCodes.BAD_PARAMS, HttpStatus.BAD_REQUEST)
+
+            //Aquí se irán añadiendo excepciones para los casos que vayamos necesitando
+
+
+    );
 }

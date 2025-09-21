@@ -10,6 +10,7 @@ class FeatureflagApplicationTests {
 
 	@Test
 	void contextLoads() {
+		//empty method
 	}
 
 }

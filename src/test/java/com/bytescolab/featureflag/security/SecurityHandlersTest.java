@@ -1,8 +1,8 @@
-package com.bytescolab.featureflag.security.handlers;
+package com.bytescolab.featureflag.security;
 
+import com.bytescolab.featureflag.config.security.handlers.RestAccessDeniedHandler;
+import com.bytescolab.featureflag.config.security.handlers.RestAuthenticationEntryPoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
